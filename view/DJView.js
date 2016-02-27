@@ -14,8 +14,10 @@ function DJView (model)
 {
     AbstractSessionView.call (this, model, model.numScenes, model.numTracks);
 
-    this.deckA = this.model.getTrackBank ().trackBank.getTrack (DJView.TRACK_DECK_A_FX);
-    this.deckB = this.model.getTrackBank ().trackBank.getTrack (DJView.TRACK_DECK_B_FX);
+    this.trackBank = new TrackBankProxy (15, model.numScenes, 0, true);
+
+    this.deckA = this.trackBank.trackBank.getTrack (DJView.TRACK_DECK_A_FX);
+    this.deckB = this.trackBank.trackBank.getTrack (DJView.TRACK_DECK_B_FX);
 
     this.deviceBankA = this.deckA.createDeviceBank (6);
     this.deviceBankB = this.deckB.createDeviceBank (6);
@@ -30,9 +32,21 @@ function DJView (model)
 }
 DJView.prototype = new AbstractSessionView ();
 
+DJView.prototype.onLoad = function (event, isDeckA)
+{
+// TODO API extension required - Open browser to browse songs
+};
+
+DJView.prototype.onEQ = function (isDeckA, isShifted, param, value)
+{
+    if (isShifted)
+        return;
+    this.getDeviceBank (isDeckA).getDevice (5).getParameter (param).set (value, Config.maxParameterValue);
+};
+
 DJView.prototype.updateButtons = function ()
 {
-    var tb = this.model.getTrackBank ();
+    var tb = this.trackBank;
     var track = null;
     for (var i = 0; i < 4; i++)
     {
@@ -63,12 +77,18 @@ DJView.prototype.onGridNote = function (event, isDeckA, isShifted, note, velocit
     var col = index % cols;
     var s = (this.rows - 1) - Math.floor (index / cols);
 
-    var tb = this.model.getTrackBank ();
+    var tb = this.trackBank;
 
     if (this.surface.isShiftPressed (true))
     {
         var pad = col + s * 4 + (isDeckA ? 0 : 16);
         tb.scrollToScene (4 * pad);
+        return;
+    }
+
+    if (this.surface.isShiftPressed (false))
+    {
+        this.switchView (index);
         return;
     }
 
@@ -87,11 +107,17 @@ DJView.prototype.onGridNote = function (event, isDeckA, isShifted, note, velocit
 
 DJView.prototype.drawGrid = function ()
 {
-    var tb = this.model.getTrackBank ();
-    var scenePosition = Math.floor (tb.getScenePosition () / 4);
+    if (this.surface.isShiftPressed (false))
+    {
+        this.drawViewSelection ();
+        return;
+    }
+
+    var tb = this.trackBank;
 
     if (this.surface.isShiftPressed (true))
     {
+        var scenePosition = Math.floor (tb.getScenePosition () / 4);
         // Scene selection mode
         for (var i = 0; i < 16; i++)
         {
@@ -103,13 +129,7 @@ DJView.prototype.drawGrid = function ()
         return;
     }
 
-    if (this.surface.isShiftPressed (false))
-    {
-        this.drawViewSelection ();
-        return;
-    }
-
-    // Clips 
+    // Clips
     for (var x = 0; x < 4; x++)
     {
         var t1 = tb.getTrack (DJView.TRACK_DECK_A_PLAYBACK + x);
@@ -147,7 +167,7 @@ DJView.prototype.onVolumeKnob = function (isDeckA, isShifted, value)
 {
     if (isShifted)
         return;
-    var tb = this.model.getTrackBank ();
+    var tb = this.trackBank;
     tb.setVolume (isDeckA ? DJView.TRACK_DECK_A_FX : DJView.TRACK_DECK_B_FX, value);
 };
 
@@ -165,7 +185,7 @@ DJView.prototype.onEffectKnob = function (isDeckA, isShifted, fxNumber, value)
     // Volume control
     if (isShifted)
     {
-        var tb = this.model.getTrackBank ();
+        var tb = this.trackBank;
         tb.setVolume (1 + fxNumber + (isDeckA ? DJView.TRACK_DECK_A_FX : DJView.TRACK_DECK_B_FX), value);
         return;
     }
@@ -195,7 +215,7 @@ DJView.prototype.changeHeadphoneVolumeDown = function ()
 
 DJView.prototype.changeHeadphoneVolume = function (isUp)
 {
-    var tb = this.model.getTrackBank ();
+    var tb = this.trackBank;
     tb.changeVolume (DJView.TRACK_HEADPHONE, isUp ? 1 : 126, Config.fractionValue);
 };
 
@@ -214,20 +234,13 @@ DJView.prototype.onEffectOn = function (event, isDeckA, isShifted, fxNumber)
     if (isShifted)
     {
         // Mute tracks
-        var tb = this.model.getTrackBank ();
+        var tb = this.trackBank;
         tb.toggleMute ((isDeckA ? DJView.TRACK_DECK_A_PLAYBACK : DJView.TRACK_DECK_B_PLAYBACK) + fxNumber);
         return;
     }
 
     // +1 because first is the filter
     this.getDeviceBank (isDeckA).getDevice (1 + fxNumber).toggleEnabledState ();
-};
-
-DJView.prototype.onEQ = function (isDeckA, isShifted, param, value)
-{
-    if (isShifted)
-        return;
-    this.getDeviceBank (isDeckA).getDevice (5).getParameter (param).set (value, Config.maxParameterValue);
 };
 
 DJView.prototype.onRecord = function (event)
@@ -263,18 +276,12 @@ DJView.prototype.onMode = function (event, isDeckA, mode)
 // Pads (Slicer) - Change loop length (8 temporary and 8 fixed) around current
 // play position
 // Pads (Loop) - Loop Start/End
-
-};
-
-DJView.prototype.onLoad = function (event, isDeckA)
-{
-// TODO API extension required - Open browser to browse songs
 };
 
 DJView.prototype.onPreFaderListen = function (event, isDeckA)
 {
     if (event.isDown ())
-        this.model.getTrackBank ().toggleMute (isDeckA ? DJView.TRACK_HEADPHONE_A : DJView.TRACK_HEADPHONE_B);
+        this.trackBank.toggleMute (isDeckA ? DJView.TRACK_HEADPHONE_A : DJView.TRACK_HEADPHONE_B);
 };
 
 DJView.prototype.getDeviceBank = function (isDeckA)

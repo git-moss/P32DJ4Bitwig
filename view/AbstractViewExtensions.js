@@ -13,7 +13,7 @@ AbstractView.prototype.updateDevice = function ()
 AbstractView.prototype.onActivate = function ()
 {
     this.updateNoteMapping ();
-    
+
     scheduleTask (doObject (this, this.updateDisplay), [], 200);
 };
 
@@ -27,7 +27,7 @@ AbstractView.prototype.updateDisplay = function ()
 
     var parts = tempoString.toString ().split ('.');
     var tempo = parts[0];
-    
+
     // Left display
     if (tempo.length > 2)
     {
@@ -100,6 +100,9 @@ AbstractView.prototype.onCrossfader = function (value)
     this.model.getTransport ().setCrossfade (value);
 };
 
+AbstractView.prototype.onBrowseButton = function (event)
+{};
+
 AbstractView.prototype.onLoopButton = function (event, isDeckA)
 {
     if (!event.isDown ())
@@ -126,14 +129,28 @@ AbstractView.prototype.drawViewSelection = function ()
     // Scene selection mode
     for (var i = 0; i < 24; i++)
         this.surface.pads.light (i, P32DJ_BUTTON_STATE_BLACK);
-    
+
     this.surface.pads.light (24, this.surface.isActiveView (VIEW_DJ) ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_PINK);
     this.surface.pads.light (25, this.surface.isActiveView (VIEW_MIX) ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_PINK);
     this.surface.pads.light (26, P32DJ_BUTTON_STATE_BLACK);
     this.surface.pads.light (27, P32DJ_BUTTON_STATE_BLACK);
-        
+
     for (var i = 28; i < 32; i++)
         this.surface.pads.light (i, P32DJ_BUTTON_STATE_BLACK);
 };
 
-AbstractView.prototype.drawSceneButtons = function () {};
+AbstractView.prototype.switchView = function (index)
+{
+    switch (index)
+    {
+        case 0:
+            this.surface.setActiveView (VIEW_DJ);
+            break;
+        case 1:
+            this.surface.setActiveView (VIEW_MIX);
+            break;
+    }
+};
+
+AbstractView.prototype.drawSceneButtons = function ()
+{};

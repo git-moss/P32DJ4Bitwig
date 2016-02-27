@@ -17,9 +17,9 @@ function Controller ()
 
     this.model = new Model (0,              // The MIDI CC at which the user parameters start
                             this.scales,    // The scales object
-                            15,             // The number of track to monitor (per track bank)
+                            8,             // The number of track to monitor (per track bank)
                             4,              // The number of scenes to monitor (per scene bank)
-                            6,              // The number of sends to monitor
+                            8,              // The number of sends to monitor
                             6,              // The number of filters columns in the browser to monitor
                             16,             // The number of entries in one filter column to monitor
                             16,             // The number of search results in the browser to monitor

@@ -9,7 +9,7 @@ var P32DJ_BUTTON_STATE_ON = 0x7F;
 // CC - Channel 0
 var P32DJ_XFADER = 1; // 00 > 7F : Full Left > Full Right
 var P32DJ_BROWSE_ENC = 2; // 7F > 40 : CCW Slow > Fast, 01 > 3F : CW Slow >
-                            // Fast
+// Fast
 
 // CC - Channel 1 & 2
 var P32DJ_VOL = 1;
@@ -25,7 +25,7 @@ var P32DJ_LOOP_ENC = 10;
 
 // CC - Channel 3
 var P32DJ_SHIFT_BROWSE_ENC = 2; // 7F > 40 : CCW Slow > Fast, 01 > 3F : CW Slow
-                                // > Fast
+// > Fast
 
 // Note controls - Channel 0
 var P32DJ_BROWSE_BTN = 1; // 7F : Pressed - 00: Released
@@ -130,15 +130,15 @@ P32DJ.prototype.handleMidi = function (status, data1, data2)
 
     switch (code)
     {
-    // Note on
-    case 0x90:
-        this.handleButtons (channel, data1, data2);
-        break;
+        // Note on
+        case 0x90:
+            this.handleButtons (channel, data1, data2);
+            break;
 
-    // CC
-    case 0xB0:
-        this.handleCC (channel, data1, data2);
-        break;
+        // CC
+        case 0xB0:
+            this.handleCC (channel, data1, data2);
+            break;
     }
 };
 
@@ -150,84 +150,84 @@ P32DJ.prototype.handleCC = function (channel, cc, value)
 
     switch (channel)
     {
-    case 0:
-        switch (cc)
-        {
-        case P32DJ_XFADER:
-            view.onCrossfader (value);
+        case 0:
+            switch (cc)
+            {
+                case P32DJ_XFADER:
+                    view.onCrossfader (value);
+                    break;
+
+                case P32DJ_BROWSE_ENC:
+                    view.onBrowse (false, value);
+                    break;
+
+                default:
+                    println ("Unused CC: " + cc + " on channel 0");
+                    break;
+            }
             break;
 
-        case P32DJ_BROWSE_ENC:
-            view.onBrowse (false, value);
+        case 1:
+        case 2:
+        case 4:
+        case 5:
+            var isDeckA = channel == 1 || channel == 4;
+            var isShifted = channel == 4 || channel == 5;
+            switch (cc)
+            {
+                case P32DJ_VOL:
+                    view.onVolumeKnob (isDeckA, isShifted, value);
+                    break;
+
+                case P32DJ_LOW:
+                    view.onEQ (isDeckA, isShifted, 0, value);
+                    break;
+
+                case P32DJ_MID:
+                    view.onEQ (isDeckA, isShifted, 1, value);
+                    break;
+
+                case P32DJ_HIGH:
+                    view.onEQ (isDeckA, isShifted, 2, value);
+                    break;
+
+                case P32DJ_FILTER:
+                    view.onFilterKnob (isDeckA, isShifted, value);
+                    break;
+
+                case P32DJ_FX1_LVL:
+                case P32DJ_FX2_LVL:
+                case P32DJ_FX3_LVL:
+                case P32DJ_DRY_WET:
+                    view.onEffectKnob (isDeckA, isShifted, cc - P32DJ_FX1_LVL, value);
+                    break;
+
+                case P32DJ_LOOP_ENC:
+                    view.onLoopEncKnob (isDeckA, isShifted, value);
+                    break;
+
+                default:
+                    println ("Unused CC: " + cc + " on channel " + channel);
+                    break;
+            }
+            break;
+
+        case 3:
+            switch (cc)
+            {
+                case P32DJ_SHIFT_BROWSE_ENC:
+                    view.onBrowse (true, value);
+                    break;
+
+                default:
+                    println ("Unused CC: " + cc + " on channel 3");
+                    break;
+            }
             break;
 
         default:
-            println ("Unused CC: " + cc + " on channel 0");
+            println ("Unused Midi Channel: " + channel);
             break;
-        }
-        break;
-
-    case 1:
-    case 2:
-    case 4:
-    case 5:
-        var isDeckA = channel == 1 || channel == 4;
-        var isShifted = channel == 4 || channel == 5;
-        switch (cc)
-        {
-        case P32DJ_VOL:
-            view.onVolumeKnob (isDeckA, isShifted, value);
-            break;
-
-        case P32DJ_LOW:
-            view.onEQ (isDeckA, isShifted, 0, value);
-            break;
-
-        case P32DJ_MID:
-            view.onEQ (isDeckA, isShifted, 1, value);
-            break;
-
-        case P32DJ_HIGH:
-            view.onEQ (isDeckA, isShifted, 2, value);
-            break;
-
-        case P32DJ_FILTER:
-            view.onFilterKnob (isDeckA, isShifted, value);
-            break;
-
-        case P32DJ_FX1_LVL:
-        case P32DJ_FX2_LVL:
-        case P32DJ_FX3_LVL:
-        case P32DJ_DRY_WET:
-            view.onEffectKnob (isDeckA, isShifted, cc - P32DJ_FX1_LVL, value);
-            break;
-
-        case P32DJ_LOOP_ENC:
-            view.onLoopEncKnob (isDeckA, isShifted, value);
-            break;
-
-        default:
-            println ("Unused CC: " + cc + " on channel " + channel);
-            break;
-        }
-        break;
-
-    case 3:
-        switch (cc)
-        {
-        case P32DJ_SHIFT_BROWSE_ENC:
-            view.onBrowse (true, value);
-            break;
-
-        default:
-            println ("Unused CC: " + cc + " on channel 3");
-            break;
-        }
-        break;
-
-    default:
-        println ("Unused Midi Channel: " + channel);
-        break;
     }
 };
 
@@ -281,26 +281,25 @@ P32DJ.prototype.handleEvent = function (note, value, channel)
     {
         switch (note)
         {
-        case P32DJ_BROWSE_BTN:
-            // TODO
-            println ("P32DJ_BROWSE_BTN");
-            break;
+            case P32DJ_BROWSE_BTN:
+                view.onBrowseButton (event);
+                break;
 
-        case P32DJ_REC:
-            view.onRecord (event);
-            break;
+            case P32DJ_REC:
+                view.onRecord (event);
+                break;
 
-        case P32DJ_SLIP:
-            view.onSlip (event);
-            break;
+            case P32DJ_SLIP:
+                view.onSlip (event);
+                break;
 
-        case P32DJ_VOL_UP:
-            view.onHeadphoneVolume (event, true);
-            break;
+            case P32DJ_VOL_UP:
+                view.onHeadphoneVolume (event, true);
+                break;
 
-        case P32DJ_VOL_DOWN:
-            view.onHeadphoneVolume (event, false);
-            break;
+            case P32DJ_VOL_DOWN:
+                view.onHeadphoneVolume (event, false);
+                break;
         }
         return;
     }
@@ -310,73 +309,73 @@ P32DJ.prototype.handleEvent = function (note, value, channel)
 
     switch (note)
     {
-    case P32DJ_LOOP_BTN:
-        view.onLoopButton (event, isDeckA);
-        break;
+        case P32DJ_LOOP_BTN:
+            view.onLoopButton (event, isDeckA);
+            break;
 
-    case P32DJ_FILTER_ON:
-        view.onFilterOn (event, isDeckA, isShifted);
-        break;
+        case P32DJ_FILTER_ON:
+            view.onFilterOn (event, isDeckA, isShifted);
+            break;
 
-    case P32DJ_FX1_ON:
-    case P32DJ_FX2_ON:
-    case P32DJ_FX3_ON:
-    case P32DJ_MACROFX_ON:
-        view.onEffectOn (event, isDeckA, isShifted, note - P32DJ_FX1_ON);
-        break;
+        case P32DJ_FX1_ON:
+        case P32DJ_FX2_ON:
+        case P32DJ_FX3_ON:
+        case P32DJ_MACROFX_ON:
+            view.onEffectOn (event, isDeckA, isShifted, note - P32DJ_FX1_ON);
+            break;
 
-    case P32DJ_SHIFT:
-        this.isShift[channel - 1] = event.isDown ();
-        break;
+        case P32DJ_SHIFT:
+            this.isShift[channel - 1] = event.isDown ();
+            break;
 
-    case P32DJ_SYNC:
-        if (isDeckA)
-        {
-            this.isLeftSyncPressed = event.isDown ();
-            view.onSyncA (event);
-        }
-        else
-            view.onSyncB (event);
-        break;
+        case P32DJ_SYNC:
+            if (isDeckA)
+            {
+                this.isLeftSyncPressed = event.isDown ();
+                view.onSyncA (event);
+            }
+            else
+                view.onSyncB (event);
+            break;
 
-    case P32DJ_CUE:
-        if (isDeckA)
-            view.onCueA (event);
-        else
-            view.onCueB (event);
-        break;
+        case P32DJ_CUE:
+            if (isDeckA)
+                view.onCueA (event);
+            else
+                view.onCueB (event);
+            break;
 
-    case P32DJ_PLAY:
-        if (isDeckA)
-            view.onPlayA (event);
-        else
-            view.onPlayB (event);
-        break;
+        case P32DJ_PLAY:
+            if (isDeckA)
+                view.onPlayA (event);
+            else
+                view.onPlayB (event);
+            break;
 
-    case P32DJ_MODE1:
-    case P32DJ_MODE2:
-    case P32DJ_MODE3:
-    case P32DJ_MODE4:
-        view.onMode (event, isDeckA, note - P32DJ_MODE1);
-        break;
+        case P32DJ_MODE1:
+        case P32DJ_MODE2:
+        case P32DJ_MODE3:
+        case P32DJ_MODE4:
+            view.onMode (event, isDeckA, note - P32DJ_MODE1);
+            break;
 
-    case P32DJ_LOAD:
-        view.onLoad (event, isDeckA);
-        break;
+        case P32DJ_LOAD:
+            view.onLoad (event, isDeckA);
+            break;
 
-    case P32DJ_PFL:
-        view.onPreFaderListen (event, isDeckA);
-        break;
+        case P32DJ_PFL:
+            view.onPreFaderListen (event, isDeckA);
+            break;
 
-    default:
-        if (note >= 36 && note <= 51)
-        {
-            view.onGridNote (event, isDeckA, isShifted, note, value);
-            return;
-        }
+        default:
+            if (note >= 36 && note <= 51)
+            {
+                view.onGridNote (event, isDeckA, isShifted, note, value);
+                return;
+            }
 
-        println ("Unused note: " + note);
-        break;
+            println ("Unused note: " + note);
+            break;
     }
 };
 
