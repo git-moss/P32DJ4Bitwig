@@ -520,6 +520,8 @@ AbstractTrackBankProxy.prototype.getScenePosition = function ()
 AbstractTrackBankProxy.prototype.scrollToScene = function (position)
 {
     this.trackBank.scrollToScene (position);
+    // TODO Bugfix required - Call it twice to work around a Bitwig bug
+    this.trackBank.scrollToScene (position);
 };
 
 /**

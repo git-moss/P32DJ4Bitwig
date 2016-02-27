@@ -28,13 +28,7 @@ function Controller ()
     this.surface = new P32DJ (output, input);
     
     this.surface.addView (VIEW_DJ, new DJView (this.model));
-    // this.surface.addView (VIEW_DEVICE, new DeviceView (this.model));
-    // this.surface.addView (VIEW_PLAY, new PlayView (this.model));
-    // this.surface.addView (VIEW_DRUM, new DrumView (this.model));
-    // this.surface.addView (VIEW_SEQUENCER, new SequencerView (this.model));
-    // this.surface.addView (VIEW_SESSION, new SessionView (this.model));
-    // this.surface.addView (VIEW_BROWSER, new BrowserView (this.model));
-    // this.surface.addView (VIEW_SHIFT, new ShiftView (this.model));
+    this.surface.addView (VIEW_MIX, new MixView (this.model));
     
     this.surface.setActiveView (VIEW_DJ);
 }

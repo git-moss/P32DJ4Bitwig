@@ -2,58 +2,36 @@
 // (c) 2016
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
-DJView.TRACK_DECK_A_FX = 1;
-DJView.TRACK_DECK_A_PLAYBACK = 2;
-DJView.TRACK_DECK_B_FX = 7;
-DJView.TRACK_DECK_B_PLAYBACK = 8;
-DJView.TRACK_HEADPHONE = 12;
-DJView.TRACK_HEADPHONE_A = 13;
-DJView.TRACK_HEADPHONE_B = 14;
-
-function DJView (model)
+function MixView (model)
 {
-    AbstractSessionView.call (this, model, model.numScenes, model.numTracks);
-
-    this.deckA = this.model.getTrackBank ().trackBank.getTrack (DJView.TRACK_DECK_A_FX);
-    this.deckB = this.model.getTrackBank ().trackBank.getTrack (DJView.TRACK_DECK_B_FX);
-
-    this.deviceBankA = this.deckA.createDeviceBank (6);
-    this.deviceBankB = this.deckB.createDeviceBank (6);
-    for (var i = 0; i < 6; i++)
-    {
-        this.deviceBankA.getDevice (i).addIsEnabledObserver (doObjectIndex (this, i, DJView.prototype.handleIsEnabledA));
-        this.deviceBankB.getDevice (i).addIsEnabledObserver (doObjectIndex (this, i, DJView.prototype.handleIsEnabledB));
-    }
-
-    this.deviceEnabledA = initArray (true, 6);
-    this.deviceEnabledB = initArray (true, 6);
+    AbstractView.call (this, model);
 }
-DJView.prototype = new AbstractSessionView ();
+MixView.prototype = new AbstractView ();
 
-DJView.prototype.updateButtons = function ()
+MixView.prototype.updateButtons = function ()
 {
     var tb = this.model.getTrackBank ();
     var track = null;
     for (var i = 0; i < 4; i++)
     {
-        track = tb.getTrack (DJView.TRACK_DECK_A_PLAYBACK + i);
+        track = tb.getTrack (MixView.TRACK_DECK_A_PLAYBACK + i);
         this.surface.updateButtonEx (P32DJ_FX1_ON + i, 1, this.deviceEnabledA[1 + i] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
         this.surface.updateButtonEx (P32DJ_FX1_ON + i, 4, track.mute ? P32DJ_BUTTON_STATE_OFF : P32DJ_BUTTON_STATE_ON);
-        track = tb.getTrack (DJView.TRACK_DECK_B_PLAYBACK + i);
+        track = tb.getTrack (MixView.TRACK_DECK_B_PLAYBACK + i);
         this.surface.updateButtonEx (P32DJ_FX1_ON + i, 2, this.deviceEnabledB[1 + i] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
         this.surface.updateButtonEx (P32DJ_FX1_ON + i, 5, track.mute ? P32DJ_BUTTON_STATE_OFF : P32DJ_BUTTON_STATE_ON);
     }
 
-    track = tb.getTrack (DJView.TRACK_HEADPHONE_A);
+    track = tb.getTrack (MixView.TRACK_HEADPHONE_A);
     this.surface.updateButtonEx (P32DJ_PFL, 1, track.mute ? P32DJ_BUTTON_STATE_OFF : P32DJ_BUTTON_STATE_ON);
-    track = tb.getTrack (DJView.TRACK_HEADPHONE_B);
+    track = tb.getTrack (MixView.TRACK_HEADPHONE_B);
     this.surface.updateButtonEx (P32DJ_PFL, 2, track.mute ? P32DJ_BUTTON_STATE_OFF : P32DJ_BUTTON_STATE_ON);
 
     this.surface.updateButtonEx (P32DJ_REC, 0, this.deviceEnabledA[5] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
     this.surface.updateButtonEx (P32DJ_SLIP, 0, this.deviceEnabledB[5] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
 };
 
-DJView.prototype.onGridNote = function (event, isDeckA, isShifted, note, velocity)
+MixView.prototype.onGridNote = function (event, isDeckA, isShifted, note, velocity)
 {
     if (velocity == 0)
         return;
@@ -72,7 +50,7 @@ DJView.prototype.onGridNote = function (event, isDeckA, isShifted, note, velocit
         return;
     }
 
-    var t = (isDeckA ? DJView.TRACK_DECK_A_PLAYBACK : DJView.TRACK_DECK_B_PLAYBACK) + col;
+    var t = (isDeckA ? MixView.TRACK_DECK_A_PLAYBACK : MixView.TRACK_DECK_B_PLAYBACK) + col;
     var slots = tb.getClipLauncherSlots (t);
 
     if (this.surface.isLeftSyncPressed)
@@ -85,7 +63,7 @@ DJView.prototype.onGridNote = function (event, isDeckA, isShifted, note, velocit
     slots.launch (s);
 };
 
-DJView.prototype.drawGrid = function ()
+MixView.prototype.drawGrid = function ()
 {
     var tb = this.model.getTrackBank ();
     var scenePosition = Math.floor (tb.getScenePosition () / 4);
@@ -112,8 +90,8 @@ DJView.prototype.drawGrid = function ()
     // Clips 
     for (var x = 0; x < 4; x++)
     {
-        var t1 = tb.getTrack (DJView.TRACK_DECK_A_PLAYBACK + x);
-        var t2 = tb.getTrack (DJView.TRACK_DECK_B_PLAYBACK + x);
+        var t1 = tb.getTrack (MixView.TRACK_DECK_A_PLAYBACK + x);
+        var t2 = tb.getTrack (MixView.TRACK_DECK_B_PLAYBACK + x);
         for (var y = 0; y < this.rows; y++)
         {
             this.drawPad (t1.slots[y], x, y);
@@ -122,7 +100,7 @@ DJView.prototype.drawGrid = function ()
     }
 };
 
-DJView.prototype.drawPad = function (slot, x, y)
+MixView.prototype.drawPad = function (slot, x, y)
 {
     var color;
     if (slot.isPlaying)
@@ -138,20 +116,20 @@ DJView.prototype.drawPad = function (slot, x, y)
 // Knobs
 //
 
-DJView.prototype.onBrowse = function (isShifted, value)
+MixView.prototype.onBrowse = function (isShifted, value)
 {
     this.model.getMasterTrack ().changeVolume (value, isShifted ? Config.fractionMinValue : Config.fractionValue);
 };
 
-DJView.prototype.onVolumeKnob = function (isDeckA, isShifted, value)
+MixView.prototype.onVolumeKnob = function (isDeckA, isShifted, value)
 {
     if (isShifted)
         return;
     var tb = this.model.getTrackBank ();
-    tb.setVolume (isDeckA ? DJView.TRACK_DECK_A_FX : DJView.TRACK_DECK_B_FX, value);
+    tb.setVolume (isDeckA ? MixView.TRACK_DECK_A_FX : MixView.TRACK_DECK_B_FX, value);
 };
 
-DJView.prototype.onFilterKnob = function (isDeckA, isShifted, value)
+MixView.prototype.onFilterKnob = function (isDeckA, isShifted, value)
 {
     var isInc = value <= 63;
     var speed = isInc ? value : value - Config.maxParameterValue;
@@ -160,13 +138,13 @@ DJView.prototype.onFilterKnob = function (isDeckA, isShifted, value)
     this.getDeviceBank (isDeckA).getDevice (0).incDirectParameterValueNormalized (param, speed, Config.maxParameterValue);
 };
 
-DJView.prototype.onEffectKnob = function (isDeckA, isShifted, fxNumber, value)
+MixView.prototype.onEffectKnob = function (isDeckA, isShifted, fxNumber, value)
 {
     // Volume control
     if (isShifted)
     {
         var tb = this.model.getTrackBank ();
-        tb.setVolume (1 + fxNumber + (isDeckA ? DJView.TRACK_DECK_A_FX : DJView.TRACK_DECK_B_FX), value);
+        tb.setVolume (1 + fxNumber + (isDeckA ? MixView.TRACK_DECK_A_FX : MixView.TRACK_DECK_B_FX), value);
         return;
     }
 
@@ -178,35 +156,35 @@ DJView.prototype.onEffectKnob = function (isDeckA, isShifted, fxNumber, value)
 // Buttons
 //
 
-DJView.prototype.onHeadphoneVolume = function (event, isUp)
+MixView.prototype.onHeadphoneVolume = function (event, isUp)
 {
     this.handleScroller (event, isUp ? this.changeHeadphoneVolumeUp : this.changeHeadphoneVolumeDown);
 };
 
-DJView.prototype.changeHeadphoneVolumeUp = function ()
+MixView.prototype.changeHeadphoneVolumeUp = function ()
 {
     this.changeHeadphoneVolume (true);
 };
 
-DJView.prototype.changeHeadphoneVolumeDown = function ()
+MixView.prototype.changeHeadphoneVolumeDown = function ()
 {
     this.changeHeadphoneVolume (false);
 };
 
-DJView.prototype.changeHeadphoneVolume = function (isUp)
+MixView.prototype.changeHeadphoneVolume = function (isUp)
 {
     var tb = this.model.getTrackBank ();
-    tb.changeVolume (DJView.TRACK_HEADPHONE, isUp ? 1 : 126, Config.fractionValue);
+    tb.changeVolume (MixView.TRACK_HEADPHONE, isUp ? 1 : 126, Config.fractionValue);
 };
 
-DJView.prototype.onFilterOn = function (event, isDeckA, isShifted)
+MixView.prototype.onFilterOn = function (event, isDeckA, isShifted)
 {
     if (!event.isDown () || isShifted)
         return;
     this.getDeviceBank (isDeckA).getDevice (0).toggleEnabledState ();
 };
 
-DJView.prototype.onEffectOn = function (event, isDeckA, isShifted, fxNumber)
+MixView.prototype.onEffectOn = function (event, isDeckA, isShifted, fxNumber)
 {
     if (!event.isDown ())
         return;
@@ -215,7 +193,7 @@ DJView.prototype.onEffectOn = function (event, isDeckA, isShifted, fxNumber)
     {
         // Mute tracks
         var tb = this.model.getTrackBank ();
-        tb.toggleMute ((isDeckA ? DJView.TRACK_DECK_A_PLAYBACK : DJView.TRACK_DECK_B_PLAYBACK) + fxNumber);
+        tb.toggleMute ((isDeckA ? MixView.TRACK_DECK_A_PLAYBACK : MixView.TRACK_DECK_B_PLAYBACK) + fxNumber);
         return;
     }
 
@@ -223,41 +201,41 @@ DJView.prototype.onEffectOn = function (event, isDeckA, isShifted, fxNumber)
     this.getDeviceBank (isDeckA).getDevice (1 + fxNumber).toggleEnabledState ();
 };
 
-DJView.prototype.onEQ = function (isDeckA, isShifted, param, value)
+MixView.prototype.onEQ = function (isDeckA, isShifted, param, value)
 {
     if (isShifted)
         return;
     this.getDeviceBank (isDeckA).getDevice (5).getParameter (param).set (value, Config.maxParameterValue);
 };
 
-DJView.prototype.onRecord = function (event)
+MixView.prototype.onRecord = function (event)
 {
     if (event.isDown ())
         this.getDeviceBank (true).getDevice (5).toggleEnabledState ();
 };
 
-DJView.prototype.onSlip = function (event)
+MixView.prototype.onSlip = function (event)
 {
     if (event.isDown ())
         this.getDeviceBank (false).getDevice (5).toggleEnabledState ();
 };
 
-DJView.prototype.onSyncA = function (event, isDeckA)
+MixView.prototype.onSyncA = function (event, isDeckA)
 {
 // Not used println ("onSync A");
 };
 
-DJView.prototype.onCueA = function (event, isDeckA)
+MixView.prototype.onCueA = function (event, isDeckA)
 {
 // Not used println ("onCue A");
 };
 
-DJView.prototype.onPlayA = function (event)
+MixView.prototype.onPlayA = function (event)
 {
 // Not used println ("onPlay A");
 };
 
-DJView.prototype.onMode = function (event, isDeckA, mode)
+MixView.prototype.onMode = function (event, isDeckA, mode)
 {
 // TODO API extension required - Pad modes
 // Pads (Slicer) - Change loop length (8 temporary and 8 fixed) around current
@@ -266,28 +244,28 @@ DJView.prototype.onMode = function (event, isDeckA, mode)
 
 };
 
-DJView.prototype.onLoad = function (event, isDeckA)
+MixView.prototype.onLoad = function (event, isDeckA)
 {
 // TODO API extension required - Open browser to browse songs
 };
 
-DJView.prototype.onPreFaderListen = function (event, isDeckA)
+MixView.prototype.onPreFaderListen = function (event, isDeckA)
 {
     if (event.isDown ())
-        this.model.getTrackBank ().toggleMute (isDeckA ? DJView.TRACK_HEADPHONE_A : DJView.TRACK_HEADPHONE_B);
+        this.model.getTrackBank ().toggleMute (isDeckA ? MixView.TRACK_HEADPHONE_A : MixView.TRACK_HEADPHONE_B);
 };
 
-DJView.prototype.getDeviceBank = function (isDeckA)
+MixView.prototype.getDeviceBank = function (isDeckA)
 {
     return isDeckA ? this.deviceBankA : this.deviceBankB;
 };
 
-DJView.prototype.handleIsEnabledA = function (index, isEnabled)
+MixView.prototype.handleIsEnabledA = function (index, isEnabled)
 {
     this.deviceEnabledA[index] = isEnabled;
 };
 
-DJView.prototype.handleIsEnabledB = function (index, isEnabled)
+MixView.prototype.handleIsEnabledB = function (index, isEnabled)
 {
     this.deviceEnabledB[index] = isEnabled;
 };
