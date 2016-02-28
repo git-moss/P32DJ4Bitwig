@@ -6,7 +6,6 @@
 var VIEW_DJ     = 0;
 var VIEW_MIX    = 1;
 var VIEW_DEVICE = 2;
-var VIEW_BROWSE = 3;
 
 load ("AbstractViewExtensions.js");
 load ("DJView.js");

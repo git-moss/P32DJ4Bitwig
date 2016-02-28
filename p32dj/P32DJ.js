@@ -304,6 +304,17 @@ P32DJ.prototype.handleEvent = function (note, value, channel)
         return;
     }
 
+    if (channel == 3)
+    {
+        switch (note)
+        {
+            case P32DJ_BROWSE_BTN:
+                view.onBrowseButton (event);
+                break;
+        }
+        return;
+    }
+
     var isDeckA = channel == 1 || channel == 4;
     var isShifted = channel == 4 || channel == 5;
 

@@ -18,6 +18,8 @@ function DeviceView (model)
     }
     this.deviceEnabled = initArray (false, 8);
     this.deviceEnabledFX = initArray (false, 8);
+    
+    
 }
 DeviceView.prototype = new MixView ();
 
@@ -25,20 +27,41 @@ DeviceView.prototype.onBrowseButton = function (event)
 {
     if (!event.isDown ())
         return;
-
+    
     var browser = this.model.getBrowser ();
 
     // Already browsing?
-    if (this.surface.isActiveView (VIEW_BROWSE))
+    if (this.isBrowserActive ())
     {
-        browser.stopBrowsing (!this.surface.isSelectPressed ());
-        this.surface.restoreView ();
+        browser.stopBrowsing (!this.surface.isShiftPressed (false) && !this.surface.isShiftPressed (true));
         return;
     }
 
     // Browse for presets
     browser.browseForPresets ();
-    // TODO this.surface.setActiveView (VIEW_DEVICE);
+};
+
+DeviceView.prototype.onBrowse = function (isShifted, value)
+{
+    if (this.isBrowserActive ())
+    {
+        var session = this.model.getBrowser ().getPresetSession ();            
+        if (value < 64)
+        {
+            session.selectNextResult ();
+            if (session.getSelectedResultIndex () == session.numResults - 1)
+                session.nextResultPage ();
+        }
+        else
+        {
+            session.selectPreviousResult ();
+            if (session.getSelectedResultIndex () == 0)
+                session.previousResultPage ();
+        }
+        return;
+    }
+    
+    AbstractView.prototype.onBrowse.call (this, isShifted, value);
 };
 
 DeviceView.prototype.onEQ = function (isDeckA, isShifted, param, value)
@@ -57,6 +80,25 @@ DeviceView.prototype.onFilterOn = function (event, isDeckA, isShifted)
 
 DeviceView.prototype.onFilterKnob = function (isDeckA, isShifted, value)
 {
+    if (this.isBrowserActive ())
+    {
+        var session = this.model.getBrowser ().getPresetSession ();            
+        filterColumn = isDeckA ? 5 : 3;
+        if (value < 64)
+        {
+            session.selectNextFilterItem (filterColumn);
+            if (session.getSelectedFilterItemIndex (filterColumn) == session.numFilterColumnEntries - 1)
+                session.nextFilterItemPage (filterColumn);
+        }
+        else
+        {
+            session.selectPreviousFilterItem (filterColumn);
+            if (session.getSelectedFilterItemIndex (filterColumn) == 0)
+                session.previousFilterItemPage (filterColumn);
+        }
+        return;
+    }
+    
     var index = isDeckA ? 0 : 1;
     var param = this.model.getDevice ().getMacroParam (index);
     var v = changeValue (value, param.value, isShifted ? Config.fractionMinValue : Config.fractionValue, Config.maxParameterValue);
@@ -219,4 +261,9 @@ DeviceView.prototype.calcParamBanks = function ()
     if (page >= pages.length || page < 0)
         page = 0;
     return { pages : pages, page : page, offset : Math.floor (page / 8) * 8 };
+};
+
+DeviceView.prototype.isBrowserActive = function ()
+{
+    return this.model.getBrowser ().getPresetSession ().isActive;
 };
