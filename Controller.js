@@ -7,29 +7,63 @@ function Controller ()
     Config.init ();
 
     var output = new MidiOutput ();
-    
+
     var input = new P32DJMidiInput ();
 
-    this.scales = new Scales (36,   // Start note 
-                              51,   // End note
-                              4,    // Number of columns
-                              4);   // Number of rows
+    this.scales = new Scales (36, // Start note
+                              51, // End note
+                              4, // Number of columns
+                              4); // Number of rows
 
-    this.model = new Model (0,              // The MIDI CC at which the user parameters start
-                            this.scales,    // The scales object
-                            8,             // The number of track to monitor (per track bank)
-                            4,              // The number of scenes to monitor (per scene bank)
-                            8,              // The number of sends to monitor
-                            6,              // The number of filters columns in the browser to monitor
-                            16,             // The number of entries in one filter column to monitor
-                            16,             // The number of search results in the browser to monitor
-                            true);          // Don't navigate groups, all tracks are flat (if true)    
-    
+    this.model = new Model (0, // The MIDI CC at which the user parameters start
+                            this.scales, // The scales object
+                            8,     // The number of track to monitor (per track bank)
+                            4,     // The number of scenes to monitor (per scene bank)
+                            8,     // The number of sends to monitor
+                            6,     // The number of filters columns in the browser to monitor
+                            16,    // The number of entries in one filter column to monitor
+                            16,    // The number of search results in the browser to monitor
+                            true,  // Don't navigate groups, all tracks are flat (if true)
+                            8,     // The number of parameter of a device to monitor
+                            16);   // The number of devices to monitor 
+   
     this.surface = new P32DJ (output, input);
-    
+
     this.surface.addView (VIEW_DJ, new DJView (this.model));
     this.surface.addView (VIEW_MIX, new MixView (this.model));
+    this.surface.addView (VIEW_DEVICE, new DeviceView (this.model));
+
+    this.surface.addViewChangeListener (doObject (this, function (prevViewID, viewID)
+    {
+        this.updateIndication ();
+    }));
     
-    this.surface.setActiveView (VIEW_DJ);
+    this.model.getTrackBank ().addTrackSelectionListener (doObject (this, Controller.prototype.updateIndication));
+
+    this.surface.setActiveView (VIEW_MIX);
 }
 Controller.prototype = new AbstractController ();
+
+Controller.prototype.updateIndication = function ()
+{
+    this.model.getMasterTrack ().setVolumeIndication (true);
+
+    var tb = this.model.getCurrentTrackBank ();
+
+    var isMix = this.surface.isActiveView (VIEW_MIX);
+    var isDevice = this.surface.isActiveView (VIEW_DEVICE);
+
+    var selectedTrack = tb.getSelectedTrack ();
+    for (var i = 0; i < 8; i++)
+    {
+        var hasTrackSel = selectedTrack != null && selectedTrack.index == i;
+        tb.setVolumeIndication (i, isMix);
+        tb.setPanIndication (i, isMix);
+        for (var j = 0; j < 8; j++)
+            tb.setSendIndication (i, j, isMix && hasTrackSel);
+
+        var cd = this.model.getDevice ();
+        cd.getParameter (i).setIndication (isDevice);
+        cd.getMacro (i).getAmount ().setIndication (isDevice);
+    }
+};

@@ -100,6 +100,11 @@ AbstractView.prototype.onCrossfader = function (value)
     this.model.getTransport ().setCrossfade (value);
 };
 
+AbstractView.prototype.onBrowse = function (isShifted, value)
+{
+    this.model.getMasterTrack ().changeVolume (value, isShifted ? Config.fractionMinValue : Config.fractionValue);
+};
+
 AbstractView.prototype.onBrowseButton = function (event)
 {};
 
@@ -132,7 +137,7 @@ AbstractView.prototype.drawViewSelection = function ()
 
     this.surface.pads.light (24, this.surface.isActiveView (VIEW_DJ) ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_PINK);
     this.surface.pads.light (25, this.surface.isActiveView (VIEW_MIX) ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_PINK);
-    this.surface.pads.light (26, P32DJ_BUTTON_STATE_BLACK);
+    this.surface.pads.light (26, this.surface.isActiveView (VIEW_DEVICE) ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_PINK);
     this.surface.pads.light (27, P32DJ_BUTTON_STATE_BLACK);
 
     for (var i = 28; i < 32; i++)
@@ -148,6 +153,9 @@ AbstractView.prototype.switchView = function (index)
             break;
         case 1:
             this.surface.setActiveView (VIEW_MIX);
+            break;
+        case 2:
+            this.surface.setActiveView (VIEW_DEVICE);
             break;
     }
 };

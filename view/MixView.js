@@ -4,6 +4,9 @@
 
 function MixView (model)
 {
+    if (model == null)
+        return;
+    
     AbstractView.call (this, model);
     
     this.rows = model.numScenes;
@@ -255,11 +258,6 @@ MixView.prototype.drawGrid = function ()
     }
 };
 
-MixView.prototype.onBrowse = function (isShifted, value)
-{
-    this.model.getMasterTrack ().changeVolume (value, isShifted ? Config.fractionMinValue : Config.fractionValue);
-};
-
 MixView.prototype.onSyncA = function (event, isDeckA)
 {
 // Not used println ("onSync A");
@@ -277,19 +275,4 @@ MixView.prototype.onMode = function (event, isDeckA, mode)
 // play position
 // Pads (Loop) - Loop Start/End
 
-};
-
-MixView.prototype.getDeviceBank = function (isDeckA)
-{
-    return isDeckA ? this.deviceBankA : this.deviceBankB;
-};
-
-MixView.prototype.handleIsEnabledA = function (index, isEnabled)
-{
-    this.deviceEnabledA[index] = isEnabled;
-};
-
-MixView.prototype.handleIsEnabledB = function (index, isEnabled)
-{
-    this.deviceEnabledB[index] = isEnabled;
 };

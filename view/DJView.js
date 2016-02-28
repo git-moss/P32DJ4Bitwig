@@ -154,15 +154,6 @@ DJView.prototype.drawPad = function (slot, x, y)
     this.surface.pads.lightEx (x, y, color.color);
 };
 
-//
-// Knobs
-//
-
-DJView.prototype.onBrowse = function (isShifted, value)
-{
-    this.model.getMasterTrack ().changeVolume (value, isShifted ? Config.fractionMinValue : Config.fractionValue);
-};
-
 DJView.prototype.onVolumeKnob = function (isDeckA, isShifted, value)
 {
     if (isShifted)
