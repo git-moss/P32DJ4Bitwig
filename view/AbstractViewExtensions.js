@@ -150,12 +150,15 @@ AbstractView.prototype.switchView = function (index)
     {
         case 0:
             this.surface.setActiveView (VIEW_DJ);
+            displayNotification ("DJ Mode");
             break;
         case 1:
             this.surface.setActiveView (VIEW_MIX);
+            displayNotification ("Mix Mode");
             break;
         case 2:
             this.surface.setActiveView (VIEW_DEVICE);
+            displayNotification ("Device Mode");
             break;
     }
 };

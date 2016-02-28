@@ -175,11 +175,18 @@ DeviceView.prototype.onGridNote = function (event, isDeckA, isShifted, note, vel
         if (isDeckA)
         {
             var deviceBanks = this.calcDeviceBanks ();
-            if (deviceBanks.pages.length > 0 && deviceBanks.pages[pad] && deviceBanks.pages[pad].length > 0)            
+            if (deviceBanks.pages.length > 0 && deviceBanks.pages[pad] && deviceBanks.pages[pad].length > 0)
+            {
+                displayNotification ("Device " + (pad + 1) + ": " + deviceBanks.pages[pad]);
                 device.selectSibling (pad);
+            }
         }
         else
+        {
             device.setSelectedParameterPage (pad);
+            var paramBanks = this.calcParamBanks ();
+            displayNotification ("Parameter Bank " + (pad + 1) + ": " + paramBanks.pages[pad]);
+        }
         return;
     }
 
@@ -204,6 +211,8 @@ DeviceView.prototype.onGridNote = function (event, isDeckA, isShifted, note, vel
             break;
         case 3:
             tb.select (trackIndex);
+            var track = tb.getTrack (trackIndex);
+            displayNotification ("Track " + (track.position + 1) + ": " + track.name);
             break;
     }
 };

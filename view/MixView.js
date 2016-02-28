@@ -219,6 +219,8 @@ MixView.prototype.onGridNote = function (event, isDeckA, isShifted, note, veloci
             break;
         case 3:
             tb.select (trackIndex);
+            var track = tb.getTrack (trackIndex);
+            displayNotification ("Track " + (track.position + 1) + ": " + track.name);
             break;
     }
 };
