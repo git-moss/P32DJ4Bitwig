@@ -54,6 +54,8 @@ AbstractView.prototype.updateDisplay = function ()
     display.setRightDisplay (tempoFraction);
 };
 
+AbstractView.prototype.onPlayA = function (event) {};
+
 AbstractView.prototype.onPlayB = function (event)
 {
     if (!event.isDown ())
@@ -75,6 +77,8 @@ AbstractView.prototype.onPlayB = function (event)
     }
 };
 
+AbstractView.prototype.onCueA = function (event) {};
+
 AbstractView.prototype.onCueB = function (event)
 {
     if (!event.isDown ())
@@ -84,6 +88,8 @@ AbstractView.prototype.onCueB = function (event)
     else
         this.model.getApplication ().undo ();
 };
+
+AbstractView.prototype.onSyncA = function (event) {};
 
 AbstractView.prototype.onSyncB = function (event)
 {

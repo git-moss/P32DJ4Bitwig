@@ -23,6 +23,15 @@ function DeviceView (model)
 }
 DeviceView.prototype = new MixView ();
 
+DeviceView.prototype.onSyncA = function (event)
+{
+    if (!event.isDown ())
+        return;
+    var device = this.model.getDevice ();
+    if (device.hasSelectedDevice ())
+        device.toggleWindowOpen ();
+};
+
 DeviceView.prototype.onBrowseButton = function (event)
 {
     if (!event.isDown ())

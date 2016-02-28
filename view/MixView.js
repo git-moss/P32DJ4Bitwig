@@ -260,16 +260,6 @@ MixView.prototype.drawGrid = function ()
     }
 };
 
-MixView.prototype.onSyncA = function (event, isDeckA)
-{
-// Not used println ("onSync A");
-};
-
-MixView.prototype.onCueA = function (event, isDeckA)
-{
-// Not used println ("onCue A");
-};
-
 MixView.prototype.onMode = function (event, isDeckA, mode)
 {
 // TODO API extension required - Pad modes

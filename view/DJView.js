@@ -246,21 +246,6 @@ DJView.prototype.onSlip = function (event)
         this.getDeviceBank (false).getDevice (5).toggleEnabledState ();
 };
 
-DJView.prototype.onSyncA = function (event, isDeckA)
-{
-// Not used println ("onSync A");
-};
-
-DJView.prototype.onCueA = function (event, isDeckA)
-{
-// Not used println ("onCue A");
-};
-
-DJView.prototype.onPlayA = function (event)
-{
-// Not used println ("onPlay A");
-};
-
 DJView.prototype.onMode = function (event, isDeckA, mode)
 {
 // TODO API extension required - Pad modes
