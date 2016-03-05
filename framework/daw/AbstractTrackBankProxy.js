@@ -86,11 +86,7 @@ function AbstractTrackBankProxy (numTracks, numScenes, numSends)
 
 AbstractTrackBankProxy.prototype.init = function ()
 {
-    // Monitor 'all' tracks for selection to move the 'window' of the main
-    // track bank to the selected track
-    this.cursorTrack.addPositionObserver (doObject (this, AbstractTrackBankProxy.prototype.handleTrackSelection));
-
-    this.primaryDevice = new CursorDeviceProxy (this.cursorTrack.createCursorDevice ("Primary", 0), 0);
+    this.primaryDevice = new CursorDeviceProxy (this.cursorTrack.createCursorDevice ("Primary", this.numSends), this.numSends);
 
     for (var i = 0; i < this.numTracks; i++)
     {
@@ -635,11 +631,6 @@ AbstractTrackBankProxy.prototype.notifyListeners = function (pressed, note, velo
 //--------------------------------------
 // Callback Handlers
 //--------------------------------------
-
-AbstractTrackBankProxy.prototype.handleTrackSelection = function (index)
-{
-   this.scrollToChannel (index);
-};
 
 AbstractTrackBankProxy.prototype.scrollToChannel = function (channel)
 {
