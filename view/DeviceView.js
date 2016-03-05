@@ -237,7 +237,7 @@ DeviceView.prototype.drawGrid = function ()
             var x = i % 4;
             var y = Math.floor (i / 4);
             this.surface.pads.lightEx (x, y, deviceBanks.pages.length > 0 && deviceBanks.pages[i] && deviceBanks.pages[i].length > 0 ? (i == deviceBanks.page ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_PINK) : P32DJ_BUTTON_STATE_BLACK);
-            this.surface.pads.lightEx (4 + x, y, i == paramBanks.page ? P32DJ_BUTTON_STATE_RED : (i < paramBanks.pages.length ? P32DJ_BUTTON_STATE_BLUE : P32DJ_BUTTON_STATE_BLACK));
+            this.surface.pads.lightEx (4 + x, y, paramBanks != null && i == paramBanks.page ? P32DJ_BUTTON_STATE_RED : (paramBanks != null && i < paramBanks.pages.length ? P32DJ_BUTTON_STATE_BLUE : P32DJ_BUTTON_STATE_BLACK));
         }
         return;
     }
@@ -274,7 +274,7 @@ DeviceView.prototype.calcParamBanks = function ()
     var device = this.model.getDevice ();
     var pages = device.getParameterPageNames ();
     var page = device.getSelectedParameterPage ();
-    if (pages.length == 0)
+    if (pages == null || pages.length == 0)
         return null;
     if (page >= pages.length || page < 0)
         page = 0;

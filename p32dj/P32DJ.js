@@ -64,7 +64,6 @@ function P32DJ (output, input)
 {
     AbstractControlSurface.call (this, output, input, P32DJ_BUTTONS_ALL);
 
-    // TODO
     for (var i = 36; i < 52; i++)
         this.gridNotes.push (i);
 
@@ -77,21 +76,6 @@ function P32DJ (output, input)
     this.display = new Display (output);
 }
 P32DJ.prototype = new AbstractControlSurface ();
-
-P32DJ.prototype.handleGridNote = function (note, velocity)
-{
-    AbstractControlSurface.prototype.handleGridNote.call (this, note, velocity);
-
-    if (note < 36 || note > 51)
-        return;
-
-    // Force a redraw on button up because the light was also modified on the
-    // controller
-    scheduleTask (doObject (this, function ()
-    {
-        this.pads.invalidate (note - 36);
-    }), null, 100);
-};
 
 P32DJ.prototype.setButton = function (button, state)
 {
@@ -367,7 +351,12 @@ P32DJ.prototype.handleEvent = function (note, value, channel)
         case P32DJ_MODE2:
         case P32DJ_MODE3:
         case P32DJ_MODE4:
-            view.onMode (event, isDeckA, note - P32DJ_MODE1);
+            var mode = note - P32DJ_MODE1;
+            view.onMode (event, isDeckA, mode);
+            if (isDeckA)
+                this.pads.setModeLeft (mode);
+            else
+                this.pads.setModeRight (mode);
             break;
 
         case P32DJ_LOAD:
@@ -382,6 +371,21 @@ P32DJ.prototype.handleEvent = function (note, value, channel)
             if (note >= 36 && note <= 51)
             {
                 view.onGridNote (event, isDeckA, isShifted, note, value);
+                return;
+            }
+            if (note >= 52 && note <= 67)
+            {
+                view.onGridNoteSlicer (event, isDeckA, isShifted, note, value);
+                return;
+            }
+            if (note >= 68 && note <= 83)
+            {
+                view.onGridNoteLoop (event, isDeckA, isShifted, note, value);
+                return;
+            }
+            if (note >= 84 && note <= 99)
+            {
+                view.onGridNoteHotCue (event, isDeckA, isShifted, note, value);
                 return;
             }
 

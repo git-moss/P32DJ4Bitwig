@@ -259,12 +259,3 @@ MixView.prototype.drawGrid = function ()
         this.surface.pads.lightEx (i, 3, track.recarm ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_BLACK);
     }
 };
-
-MixView.prototype.onMode = function (event, isDeckA, mode)
-{
-// TODO API extension required - Pad modes
-// Pads (Slicer) - Change loop length (8 temporary and 8 fixed) around current
-// play position
-// Pads (Loop) - Loop Start/End
-
-};

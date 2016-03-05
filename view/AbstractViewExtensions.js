@@ -169,5 +169,33 @@ AbstractView.prototype.switchView = function (index)
     }
 };
 
-AbstractView.prototype.drawSceneButtons = function ()
-{};
+AbstractView.prototype.drawSceneButtons = function () {};
+
+AbstractView.prototype.onGridNoteSlicer = function (event, isDeckA, isShifted, note, value)
+{
+    if (this.surface.isShiftPressed (false))
+    {
+        var index = note - 52;
+        this.switchView (index);
+    }
+};
+
+AbstractView.prototype.onGridNoteLoop = function (event, isDeckA, isShifted, note, value)
+{
+    if (this.surface.isShiftPressed (false))
+    {
+        var index = note - 68;
+        this.switchView (index);
+    }
+};
+
+AbstractView.prototype.onGridNoteHotCue = function (event, isDeckA, isShifted, note, value)
+{
+    if (this.surface.isShiftPressed (false))
+    {
+        var index = note - 84;
+        this.switchView (index);
+    }
+};
+
+AbstractView.prototype.onMode = function (event, isDeckA, mode) {};

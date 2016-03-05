@@ -246,14 +246,6 @@ DJView.prototype.onSlip = function (event)
         this.getDeviceBank (false).getDevice (5).toggleEnabledState ();
 };
 
-DJView.prototype.onMode = function (event, isDeckA, mode)
-{
-// TODO API extension required - Pad modes
-// Pads (Slicer) - Change loop length (8 temporary and 8 fixed) around current
-// play position
-// Pads (Loop) - Loop Start/End
-};
-
 DJView.prototype.onPreFaderListen = function (event, isDeckA)
 {
     if (event.isDown ())
