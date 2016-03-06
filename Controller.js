@@ -17,8 +17,8 @@ function Controller ()
     var input = new P32DJMidiInput ();
 
     this.scales = new Scales (36, // Start note
-                              51, // End note
-                              4, // Number of columns
+                              68, // End note
+                              8,  // Number of columns
                               4); // Number of rows
 
     this.model = new Model (0, // The MIDI CC at which the user parameters start
@@ -42,6 +42,28 @@ function Controller ()
     this.surface.addViewChangeListener (doObject (this, function (prevViewID, viewID)
     {
         this.updateIndication ();
+    }));
+
+    Config.addPropertyListener (Config.SCALES_SCALE, doObject (this, function ()
+    {
+        this.scales.setScaleByName (Config.scale);
+        var view = this.surface.getActiveView ();
+        if (view != null)
+            view.updateNoteMapping ();
+    }));
+    Config.addPropertyListener (Config.SCALES_BASE, doObject (this, function ()
+    {
+        this.scales.setScaleOffsetByName (Config.scaleBase);
+        var view = this.surface.getActiveView ();
+        if (view != null)
+            view.updateNoteMapping ();
+    }));
+    Config.addPropertyListener (Config.SCALES_IN_KEY, doObject (this, function ()
+    {
+        this.scales.setChromatic (!Config.scaleInKey);
+        var view = this.surface.getActiveView ();
+        if (view != null)
+            view.updateNoteMapping ();
     }));
     
     this.model.getTrackBank ().addTrackSelectionListener (doObject (this, Controller.prototype.updateIndication));

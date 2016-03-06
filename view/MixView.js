@@ -25,6 +25,7 @@ function MixView (model)
     this.offsetY = MixView.DRUM_START_KEY;
     
     this.pressedKeys = initArray (0, 128);
+    this.drumPressedKeys = initArray (0, 128);
 
     this.scales = this.model.getScales ();
     this.noteMap = this.scales.getEmptyMatrix ();
@@ -37,7 +38,8 @@ function MixView (model)
     tb.addNoteListener (doObject (this, function (pressed, note, velocity)
     {
         // Light notes send from the sequencer
-        this.pressedKeys[note] = pressed ? velocity : 0;
+        this.drumPressedKeys[note] = pressed ? velocity : 0;
+        this.setPressedKeys (note, pressed, velocity);
     }));
     tb.addTrackSelectionListener (doObject (this, function (index, isSelected)
     {
@@ -48,18 +50,19 @@ MixView.prototype = new AbstractView ();
 
 MixView.prototype.updateNoteMapping = function ()
 {
+    this.clearPressedKeys ();
+    
     switch (this.surface.getMode ())
     {
-        case P32DJ.MODE_LEFT_SLICER:
-            this.noteMap = this.canSelectedTrackHoldNotes () ? this.scales.getDrumMatrix () : this.scales.getEmptyMatrix ();
+        case P32DJ.MODE_LEFT_LOOP:
+            this.noteMap = this.canSelectedTrackHoldNotes () ? this.scales.getNoteMatrix () : this.scales.getEmptyMatrix ();
             break;
         
         default:
             this.noteMap = this.scales.getEmptyMatrix ();
+            this.surface.setKeyTranslationTable (this.noteMap);
             break;
     }
-
-    this.surface.setKeyTranslationTable (this.noteMap);
 };
 
 MixView.prototype.onLoad = function (event, isDeckA)
@@ -254,6 +257,10 @@ MixView.prototype.onGridNote = function (event, isDeckA, isShifted, note, veloci
             this.onDrumGridNote (event, isDeckA, isShifted, note, velocity);
             break;
         
+        case P32DJ.MODE_LEFT_LOOP:
+            this.onPlayGridNote (event, isDeckA, isShifted, note, velocity);
+            break;
+        
         default:
             this.onMixerGridNote (event, isDeckA, isShifted, note, velocity);
             break;
@@ -378,7 +385,7 @@ MixView.prototype.onDrumGridNote = function (event, isDeckA, isShifted, note, ve
         this.selectedPad = 4 * y + x;   // 0-16
 
         // Mark selected note
-        this.pressedKeys[this.offsetY + this.selectedPad] = velocity;
+        this.drumPressedKeys[this.offsetY + this.selectedPad] = velocity;
         
         if (!this.surface.isLeftSyncPressed)
             this.surface.sendMidiEvent (0x90, this.offsetY + this.selectedPad, velocity);
@@ -409,6 +416,93 @@ MixView.prototype.onDrumGridNote = function (event, isDeckA, isShifted, note, ve
     }
 };
 
+MixView.prototype.onPlayGridNote = function (event, isDeckA, isShifted, note, velocity)
+{
+    if (!this.canSelectedTrackHoldNotes ())
+        return;
+
+    if (this.surface.isShiftPressed (true))
+    {
+        if (velocity == 0)
+            return;
+        if (!isDeckA)
+            return;
+        switch (note)
+        {
+            // Octave Down
+            case 36:
+                this.clearPressedKeys ();
+                this.scales.decOctave ();
+                this.updateNoteMapping ();
+                displayNotification (this.scales.getRangeText ());
+                break;
+            // Octave Up
+            case 37:
+                this.clearPressedKeys ();
+                this.scales.incOctave ();
+                this.updateNoteMapping ();
+                displayNotification (this.scales.getRangeText ());
+                break;
+            // Base Down
+            case 40:
+                this.scales.setScaleOffset (this.scales.getScaleOffset () - 1);
+                var offset = this.scales.getScaleOffset ();
+                Config.setScaleBase (Scales.BASES[offset]);
+                displayNotification (Scales.BASES[offset]);
+                break;
+            // Base Up
+            case 41:
+                this.scales.setScaleOffset (this.scales.getScaleOffset () + 1);
+                var offset = this.scales.getScaleOffset ();
+                Config.setScaleBase (Scales.BASES[offset]);
+                displayNotification (Scales.BASES[offset]);
+                break;
+            // Scale Down
+            case 44:
+                this.scales.prevScale ();
+                Config.setScale (this.scales.getName (this.scales.getSelectedScale ()));
+                displayNotification (this.scales.getName (this.scales.getSelectedScale ()));
+                break;
+            // Scale Up
+            case 45:
+                this.scales.nextScale ();
+                Config.setScale (this.scales.getName (this.scales.getSelectedScale ()));
+                displayNotification (this.scales.getName (this.scales.getSelectedScale ()));
+                break;
+            // In Key
+            case 48:
+                this.scales.toggleChromatic ();
+                var isChromatic = this.scales.isChromatic ();
+                Config.setScaleInScale (!isChromatic);
+                displayNotification (isChromatic ? "Chromatic" : "In Key");
+                break;
+        }
+        return;
+    }
+
+    var index = note - 36;
+    var x = index % 4;
+    var y = Math.floor (index / 4);
+    note = 36 + x + (isDeckA ? 0 : 4) + y * 8;
+    
+    // Mark selected notes
+    if (this.noteMap[note] == -1)
+        return;
+
+    this.setPressedKeys (this.noteMap[note], true, velocity);
+    this.surface.sendMidiEvent (0x90, this.noteMap[note], velocity);
+};
+
+MixView.prototype.setPressedKeys = function (note, pressed, velocity)
+{
+    // Loop over all pads since the note can be present multiple time!
+    for (var i = 0; i < 128; i++)
+    {
+        if (this.noteMap[i] == note)
+            this.pressedKeys[i] = pressed ? velocity : 0;
+    }
+};
+
 MixView.prototype.drawGrid = function ()
 {
     if (this.surface.isShiftPressed (false))
@@ -421,6 +515,10 @@ MixView.prototype.drawGrid = function ()
     {
         case P32DJ.MODE_LEFT_SLICER:
             this.drawDrumGrid ();
+            break;
+        
+        case P32DJ.MODE_LEFT_LOOP:
+            this.drawPlayGrid ();
             break;
         
         default:
@@ -539,10 +637,42 @@ MixView.prototype.drawDrumGrid = function ()
         this.surface.pads.lightEx (4 + pad % 4, Math.floor (pad / 4), pad >= loopStartPad && pad < loopEndPad ? (pad == currentMeasure ? P32DJ_BUTTON_STATE_BLUE : P32DJ_BUTTON_STATE_PINK) : P32DJ_BUTTON_STATE_BLACK, null, false);
 };
 
+MixView.prototype.drawPlayGrid = function ()
+{
+    if (this.surface.isShiftPressed (true))
+    {
+        this.surface.pads.lightEx (0, 3, P32DJ_BUTTON_STATE_BLUE, null, false);
+        this.surface.pads.lightEx (1, 3, P32DJ_BUTTON_STATE_BLUE, null, false);
+        this.surface.pads.lightEx (0, 2, P32DJ_BUTTON_STATE_PINK, null, false);
+        this.surface.pads.lightEx (1, 2, P32DJ_BUTTON_STATE_PINK, null, false);
+        this.surface.pads.lightEx (0, 1, P32DJ_BUTTON_STATE_RED, null, false);
+        this.surface.pads.lightEx (1, 1, P32DJ_BUTTON_STATE_RED, null, false);
+        this.surface.pads.lightEx (0, 0, P32DJ_BUTTON_STATE_RED, null, false);
+        this.surface.pads.lightEx (1, 0, P32DJ_BUTTON_STATE_BLACK, null, false);
+        for (var y = 0; y < 4; y++)
+        {
+            for (var x = 2; x < 8; x++)
+                this.surface.pads.lightEx (x, y, P32DJ_BUTTON_STATE_BLACK, null, false);
+        }
+        return;
+    }
+    
+    var isKeyboardEnabled = this.canSelectedTrackHoldNotes ();
+    var isRecording = this.model.hasRecordingState ();
+    for (var i = 36; i < 68; i++)
+    {
+        var index = i - 36;
+        index = (3 - Math.floor (index / 8)) * 8 + index % 8;
+        this.surface.pads.light (index, isKeyboardEnabled ? (this.pressedKeys[i] > 0 ?
+            (isRecording ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_RED) :
+            this.scales.getColor (this.noteMap, i)) : P32DJ_BUTTON_STATE_BLACK, null, false);
+    }
+};
+
 MixView.prototype.getPadColor = function (index, primary, hasDrumPads, isSoloed, isRecording)
 {
     // Playing note?
-    if (this.pressedKeys[this.offsetY + index] > 0)
+    if (this.drumPressedKeys[this.offsetY + index] > 0)
         return isRecording ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_RED;
     // Selected?
     if (this.selectedPad == index)
@@ -565,5 +695,8 @@ MixView.prototype.isInXRange = function (x)
 MixView.prototype.clearPressedKeys = function ()
 {
     for (var i = 0; i < 128; i++)
+    {
         this.pressedKeys[i] = 0;
+        this.drumPressedKeys[i] = 0;
+    }
 };
