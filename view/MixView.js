@@ -29,6 +29,9 @@ function MixView (model)
 
     this.scales = this.model.getScales ();
     this.noteMap = this.scales.getEmptyMatrix ();
+    
+    this.programNumber = -1;
+    this.prgOffset = 0;
 
     this.clip = this.model.createCursorClip (32, 128);
     this.clip.setStepLength (this.resolutions[this.selectedIndex]);    
@@ -259,6 +262,10 @@ MixView.prototype.onGridNote = function (event, isDeckA, isShifted, note, veloci
         
         case P32DJ.MODE_LEFT_LOOP:
             this.onPlayGridNote (event, isDeckA, isShifted, note, velocity);
+            break;
+        
+        case P32DJ.MODE_LEFT_HOTCUE:
+            this.onPrgChangeGrid (event, isDeckA, isShifted, note, velocity);
             break;
         
         default:
@@ -493,6 +500,23 @@ MixView.prototype.onPlayGridNote = function (event, isDeckA, isShifted, note, ve
     this.surface.sendMidiEvent (0x90, this.noteMap[note], velocity);
 };
 
+MixView.prototype.onPrgChangeGrid = function (event, isDeckA, isShifted, note, velocity)
+{
+    if (this.surface.isShiftPressed (true))
+    {
+        var prg = note - 48;
+        if (prg >= 0 && prg < 4)
+            this.prgOffset = prg;
+        return;
+    }
+    
+    var index = note - 36;
+    var x = index % 4;
+    var y = Math.floor (index / 4);
+    this.programNumber = x + (isDeckA ? 0 : 4) + y * 8 + this.prgOffset * 32;
+    this.surface.sendMidiEvent (0xC0, this.programNumber, 0);
+};
+
 MixView.prototype.setPressedKeys = function (note, pressed, velocity)
 {
     // Loop over all pads since the note can be present multiple time!
@@ -519,6 +543,10 @@ MixView.prototype.drawGrid = function ()
         
         case P32DJ.MODE_LEFT_LOOP:
             this.drawPlayGrid ();
+            break;
+        
+        case P32DJ.MODE_LEFT_HOTCUE:
+            this.drawPrgChangeGrid ();
             break;
         
         default:
@@ -666,6 +694,28 @@ MixView.prototype.drawPlayGrid = function ()
         this.surface.pads.light (index, isKeyboardEnabled ? (this.pressedKeys[i] > 0 ?
             (isRecording ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_RED) :
             this.scales.getColor (this.noteMap, i)) : P32DJ_BUTTON_STATE_BLACK, null, false);
+    }
+};
+
+MixView.prototype.drawPrgChangeGrid = function ()
+{
+    if (this.surface.isShiftPressed (true))
+    {
+        for (var i = 0; i < 4; i++)
+            this.surface.pads.light (i, i == this.prgOffset ? P32DJ_BUTTON_STATE_BLUE : P32DJ_BUTTON_STATE_RED, null, false);
+        for (var i = 4; i < 32; i++)
+            this.surface.pads.light (i, P32DJ_BUTTON_STATE_BLACK, null, false);
+        return;
+    }
+    
+    var prg = this.programNumber - this.prgOffset * 32;
+    for (var y = 0; y < 4; y++)
+    {
+        for (var x = 0; x < 8; x++)
+        {
+            var isSelected = prg == (3 - y) * 8 + x;
+            this.surface.pads.lightEx (x, y, isSelected ? P32DJ_BUTTON_STATE_RED : (y % 2 == 0 ? P32DJ_BUTTON_STATE_BLUE : P32DJ_BUTTON_STATE_PINK), null, false);
+        }
     }
 };
 
