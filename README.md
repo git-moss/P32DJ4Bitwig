@@ -1,10 +1,7 @@
 P32DJ4Bitwig
 ============
 
-THIS IS WORK IN PROGRESS AND NOT YET RELEASED...
-
-
-Bitwig Studio script to support the Hercules 32 DJ controller.
+Bitwig Studio script to support the Hercules P32 DJ controller.
 See the Wiki for more information: https://github.com/git-moss/P32DJ4Bitwig/wiki
 
 Get the latest stable release from: http://www.mossgrabers.de/Software/Bitwig/Bitwig.html
