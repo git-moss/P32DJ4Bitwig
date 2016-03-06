@@ -7,50 +7,49 @@ var P32DJ_BUTTON_STATE_OFF = 0;
 var P32DJ_BUTTON_STATE_ON = 0x7F;
 
 // CC - Channel 0
-var P32DJ_XFADER = 1; // 00 > 7F : Full Left > Full Right
-var P32DJ_BROWSE_ENC = 2; // 7F > 40 : CCW Slow > Fast, 01 > 3F : CW Slow >
+var P32DJ_XFADER     = 1;  // 00 > 7F : Full Left > Full Right
+var P32DJ_BROWSE_ENC = 2;  // 7F > 40 : CCW Slow > Fast, 01 > 3F : CW Slow >
 // Fast
 
 // CC - Channel 1 & 2
-var P32DJ_VOL = 1;
-var P32DJ_LOW = 2;
-var P32DJ_MID = 3;
-var P32DJ_HIGH = 4;
-var P32DJ_FILTER = 5;
-var P32DJ_FX1_LVL = 6;
-var P32DJ_FX2_LVL = 7;
-var P32DJ_FX3_LVL = 8;
-var P32DJ_DRY_WET = 9;
+var P32DJ_VOL      = 1;
+var P32DJ_LOW      = 2;
+var P32DJ_MID      = 3;
+var P32DJ_HIGH     = 4;
+var P32DJ_FILTER   = 5;
+var P32DJ_FX1_LVL  = 6;
+var P32DJ_FX2_LVL  = 7;
+var P32DJ_FX3_LVL  = 8;
+var P32DJ_DRY_WET  = 9;
 var P32DJ_LOOP_ENC = 10;
 
 // CC - Channel 3
-var P32DJ_SHIFT_BROWSE_ENC = 2; // 7F > 40 : CCW Slow > Fast, 01 > 3F : CW Slow
-// > Fast
+var P32DJ_SHIFT_BROWSE_ENC = 2; // 7F > 40 : CCW Slow > Fast, 01 > 3F : CW Slow > Fast
 
 // Note controls - Channel 0
 var P32DJ_BROWSE_BTN = 1; // 7F : Pressed - 00: Released
-var P32DJ_REC = 2; // -> Receives LED
-var P32DJ_SLIP = 3; // -> Receives LED
-var P32DJ_VOL_UP = 4;
-var P32DJ_VOL_DOWN = 5;
+var P32DJ_REC        = 2; // -> Receives LED
+var P32DJ_SLIP       = 3; // -> Receives LED
+var P32DJ_VOL_UP     = 4;
+var P32DJ_VOL_DOWN   = 5;
 
 // Note controls - Channel 1
-var P32DJ_LOOP_BTN = 0x01;
-var P32DJ_FILTER_ON = 0x02;
-var P32DJ_FX1_ON = 0x03; // -> Receives LED
-var P32DJ_FX2_ON = 0x04; // -> Receives LED
-var P32DJ_FX3_ON = 0x05; // -> Receives LED
+var P32DJ_LOOP_BTN   = 0x01;
+var P32DJ_FILTER_ON  = 0x02;
+var P32DJ_FX1_ON     = 0x03; // -> Receives LED
+var P32DJ_FX2_ON     = 0x04; // -> Receives LED
+var P32DJ_FX3_ON     = 0x05; // -> Receives LED
 var P32DJ_MACROFX_ON = 0x06; // -> Receives LED
-var P32DJ_SHIFT = 0x07; // -> Receives LED
-var P32DJ_SYNC = 0x08; // -> Receives LED
-var P32DJ_CUE = 0x09; // -> Receives LED
-var P32DJ_PLAY = 0x0A; // -> Receives LED
-var P32DJ_MODE1 = 0x0B; // -> LED Controlled by Firmware
-var P32DJ_MODE2 = 0x0C; // -> LED Controlled by Firmware
-var P32DJ_MODE3 = 0x0D; // -> LED Controlled by Firmware
-var P32DJ_MODE4 = 0x0E; // -> LED Controlled by Firmware
-var P32DJ_LOAD = 0x0F;
-var P32DJ_PFL = 0x10; // -> Receives LED
+var P32DJ_SHIFT      = 0x07; // -> Receives LED
+var P32DJ_SYNC       = 0x08; // -> Receives LED
+var P32DJ_CUE        = 0x09; // -> Receives LED
+var P32DJ_PLAY       = 0x0A; // -> Receives LED
+var P32DJ_MODE1      = 0x0B; // -> LED Controlled by Firmware
+var P32DJ_MODE2      = 0x0C; // -> LED Controlled by Firmware
+var P32DJ_MODE3      = 0x0D; // -> LED Controlled by Firmware
+var P32DJ_MODE4      = 0x0E; // -> LED Controlled by Firmware
+var P32DJ_LOAD       = 0x0F;
+var P32DJ_PFL        = 0x10; // -> Receives LED
 
 // Note controls - Channel 3
 var P32DJ_SHIFT_BROWSE_BTN = 1; // 7F : Pressed - 00: Released
@@ -58,7 +57,34 @@ var P32DJ_SHIFT_BROWSE_BTN = 1; // 7F : Pressed - 00: Released
 // Note controls on channel 2 (91)
 var P32DJ_SHIFT = 7;
 
-var P32DJ_BUTTONS_ALL = [ P32DJ_LOOP_BTN, P32DJ_FILTER_ON, P32DJ_FX1_ON, P32DJ_FX2_ON, P32DJ_FX3_ON, P32DJ_MACROFX_ON, P32DJ_SHIFT, P32DJ_SYNC, P32DJ_CUE, P32DJ_PLAY, P32DJ_MODE1, P32DJ_MODE2, P32DJ_MODE3, P32DJ_MODE4, P32DJ_LOAD, P32DJ_PFL ];
+var P32DJ_BUTTONS_ALL = [ 
+    P32DJ_LOOP_BTN, 
+    P32DJ_FILTER_ON, 
+    P32DJ_FX1_ON, 
+    P32DJ_FX2_ON, 
+    P32DJ_FX3_ON, 
+    P32DJ_MACROFX_ON, 
+    P32DJ_SHIFT, 
+    P32DJ_SYNC, 
+    P32DJ_CUE, 
+    P32DJ_PLAY, 
+    P32DJ_MODE1, 
+    P32DJ_MODE2, 
+    P32DJ_MODE3, 
+    P32DJ_MODE4, 
+    P32DJ_LOAD, 
+    P32DJ_PFL 
+];
+
+P32DJ.MODE_LEFT_SAMPLER  = 0;
+P32DJ.MODE_LEFT_SLICER   = 1;
+P32DJ.MODE_LEFT_LOOP     = 2;
+P32DJ.MODE_LEFT_HOTCUE   = 3;
+P32DJ.MODE_RIGHT_SAMPLER = 4;
+P32DJ.MODE_RIGHT_SLICE   = 5;
+P32DJ.MODE_RIGHT_LOOP    = 6;
+P32DJ.MODE_RIGHT_HOTCUE  = 7;
+
 
 function P32DJ (output, input)
 {
@@ -71,11 +97,19 @@ function P32DJ (output, input)
 
     this.isShift = [ false, false ];
     this.isLeftSyncPressed = false;
+    this.isLeftCuePressed  = false;
 
     this.pads = new Grid (output);
     this.display = new Display (output);
+    
+    this.mode = P32DJ.MODE_LEFT_SAMPLER;
 }
 P32DJ.prototype = new AbstractControlSurface ();
+
+P32DJ.prototype.getMode = function ()
+{
+    return this.mode;
+};
 
 P32DJ.prototype.setButton = function (button, state)
 {
@@ -335,7 +369,10 @@ P32DJ.prototype.handleEvent = function (note, value, channel)
 
         case P32DJ_CUE:
             if (isDeckA)
+            {
+                this.isLeftCuePressed = event.isDown ();
                 view.onCueA (event);
+            }
             else
                 view.onCueB (event);
             break;
@@ -351,12 +388,13 @@ P32DJ.prototype.handleEvent = function (note, value, channel)
         case P32DJ_MODE2:
         case P32DJ_MODE3:
         case P32DJ_MODE4:
-            var mode = note - P32DJ_MODE1;
-            view.onMode (event, isDeckA, mode);
+            var m = note - P32DJ_MODE1;
+            this.mode = 3 - m + (isDeckA ? 0 : 4);
+            view.onMode (event, isDeckA, m);
             if (isDeckA)
-                this.pads.setModeLeft (mode);
+                this.pads.setModeLeft (m);
             else
-                this.pads.setModeRight (mode);
+                this.pads.setModeRight (m);
             break;
 
         case P32DJ_LOAD:
@@ -375,17 +413,17 @@ P32DJ.prototype.handleEvent = function (note, value, channel)
             }
             if (note >= 52 && note <= 67)
             {
-                view.onGridNoteSlicer (event, isDeckA, isShifted, note, value);
+                view.onGridNote (event, isDeckA, isShifted, note - 16, value);
                 return;
             }
             if (note >= 68 && note <= 83)
             {
-                view.onGridNoteLoop (event, isDeckA, isShifted, note, value);
+                view.onGridNote (event, isDeckA, isShifted, note - 32, value);
                 return;
             }
             if (note >= 84 && note <= 99)
             {
-                view.onGridNoteHotCue (event, isDeckA, isShifted, note, value);
+                view.onGridNote (event, isDeckA, isShifted, note - 48, value);
                 return;
             }
 

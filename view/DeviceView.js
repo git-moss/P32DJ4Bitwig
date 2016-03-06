@@ -18,19 +18,8 @@ function DeviceView (model)
     }
     this.deviceEnabled = initArray (false, 8);
     this.deviceEnabledFX = initArray (false, 8);
-    
-    
 }
 DeviceView.prototype = new MixView ();
-
-DeviceView.prototype.onSyncA = function (event)
-{
-    if (!event.isDown ())
-        return;
-    var device = this.model.getDevice ();
-    if (device.hasSelectedDevice ())
-        device.toggleWindowOpen ();
-};
 
 DeviceView.prototype.onBrowseButton = function (event)
 {
@@ -161,7 +150,7 @@ DeviceView.prototype.updateButtons = function ()
     this.surface.updateButtonEx (P32DJ_SLIP, 0, transport.isLauncherOverdub ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
 };
 
-DeviceView.prototype.onGridNote = function (event, isDeckA, isShifted, note, velocity)
+DeviceView.prototype.onMixerGridNote = function (event, isDeckA, isShifted, note, velocity)
 {
     if (velocity == 0)
         return;
@@ -199,12 +188,6 @@ DeviceView.prototype.onGridNote = function (event, isDeckA, isShifted, note, vel
         return;
     }
 
-    if (this.surface.isShiftPressed (false))
-    {
-        this.switchView (index);
-        return;
-    }
-
     var trackIndex = col + (isDeckA ? 0 : 4);
     var row = Math.floor (index / cols);
     switch (row)
@@ -226,7 +209,7 @@ DeviceView.prototype.onGridNote = function (event, isDeckA, isShifted, note, vel
     }
 };
 
-DeviceView.prototype.drawGrid = function ()
+DeviceView.prototype.drawMixerGrid = function ()
 {
     if (this.surface.isShiftPressed (true))
     {

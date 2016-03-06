@@ -11,7 +11,6 @@ P32DJMidiInput.prototype = new MidiInput ();
 
 P32DJMidiInput.prototype.createNoteInput = function ()
 {
-    // TODO
     var noteInput = this.port.createNoteInput ("P32DJ",
                                                "80????",  // Note off
                                                "90????",  // Note on

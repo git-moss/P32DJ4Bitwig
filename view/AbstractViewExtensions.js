@@ -171,31 +171,14 @@ AbstractView.prototype.switchView = function (index)
 
 AbstractView.prototype.drawSceneButtons = function () {};
 
-AbstractView.prototype.onGridNoteSlicer = function (event, isDeckA, isShifted, note, value)
+AbstractView.prototype.onMode = function (event, isDeckA, mode) 
 {
-    if (this.surface.isShiftPressed (false))
-    {
-        var index = note - 52;
-        this.switchView (index);
-    }
+    if (event.isDown ())
+        this.updateNoteMapping ();
 };
 
-AbstractView.prototype.onGridNoteLoop = function (event, isDeckA, isShifted, note, value)
+AbstractView.prototype.canSelectedTrackHoldNotes = function ()
 {
-    if (this.surface.isShiftPressed (false))
-    {
-        var index = note - 68;
-        this.switchView (index);
-    }
+    var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
+    return t != null && t.canHoldNotes;
 };
-
-AbstractView.prototype.onGridNoteHotCue = function (event, isDeckA, isShifted, note, value)
-{
-    if (this.surface.isShiftPressed (false))
-    {
-        var index = note - 84;
-        this.switchView (index);
-    }
-};
-
-AbstractView.prototype.onMode = function (event, isDeckA, mode) {};
