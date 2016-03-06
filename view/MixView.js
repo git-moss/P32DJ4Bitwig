@@ -32,6 +32,7 @@ function MixView (model)
     
     this.programNumber = -1;
     this.prgOffset = 0;
+    this.bankNumber = 0;
 
     this.clip = this.model.createCursorClip (32, 128);
     this.clip.setStepLength (this.resolutions[this.selectedIndex]);    
@@ -504,9 +505,22 @@ MixView.prototype.onPrgChangeGrid = function (event, isDeckA, isShifted, note, v
 {
     if (this.surface.isShiftPressed (true))
     {
-        var prg = note - 48;
-        if (prg >= 0 && prg < 4)
-            this.prgOffset = prg;
+        if (velocity == 0)
+            return;
+        if (isDeckA)
+        {
+            var prg = note - 48;
+            if (prg >= 0 && prg < 4)
+                this.prgOffset = prg;
+        }
+        else
+        {
+            this.bankNumber = note - 36;
+            this.surface.sendMidiEvent (0xB0, 32, this.bankNumber);
+            // Forces the bank change
+            if (this.programNumber != -1)
+                this.surface.sendMidiEvent (0xC0, this.programNumber, 0);
+        }
         return;
     }
     
@@ -703,8 +717,14 @@ MixView.prototype.drawPrgChangeGrid = function ()
     {
         for (var i = 0; i < 4; i++)
             this.surface.pads.light (i, i == this.prgOffset ? P32DJ_BUTTON_STATE_BLUE : P32DJ_BUTTON_STATE_RED, null, false);
-        for (var i = 4; i < 32; i++)
+        for (var i = 8; i < 12; i++)
+        {
             this.surface.pads.light (i, P32DJ_BUTTON_STATE_BLACK, null, false);
+            this.surface.pads.light (i + 8, P32DJ_BUTTON_STATE_BLACK, null, false);
+            this.surface.pads.light (i + 16, P32DJ_BUTTON_STATE_BLACK, null, false);
+        }
+        for (var i = 0; i < 16; i++)
+            this.surface.pads.lightEx (4 + i % 4, 3 - Math.floor (i / 4), i == this.bankNumber ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_BLUE, null, false);
         return;
     }
     
