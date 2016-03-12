@@ -87,7 +87,7 @@ Display.prototype.setDisplay = function (isLeft, code)
 {
     var letter1 = P32DJ_DIGIT_CODES[code.charCodeAt (0)];
     if (typeof (letter1) == 'undefined')
-        letter1 = 0;
+         letter1 = 0;
     var letter2 = P32DJ_DIGIT_CODES[code.charCodeAt (1)];
     if (typeof (letter2) == 'undefined')
         letter2 = 0;
@@ -99,8 +99,8 @@ Display.prototype.setDisplay = function (isLeft, code)
 Display.prototype.invalidate = function (isLeft)
 {
     var index = isLeft ? 0 : 2;
-    this.digits[index] = 0;
-    this.digits[index + 1] = 0;
+    this.currentDigits[index] = 0;
+    this.currentDigits[index + 1] = 0;
 };
 
 Display.prototype.flush = function ()

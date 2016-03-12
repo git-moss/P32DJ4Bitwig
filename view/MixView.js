@@ -69,6 +69,30 @@ MixView.prototype.updateNoteMapping = function ()
     }
 };
 
+MixView.prototype.updateButtons = function ()
+{
+    var tb = this.model.getCurrentTrackBank ();
+    var track = null;
+    for (var i = 0; i < 4; i++)
+    {
+        track = tb.getTrack (i);
+        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 1, track.exists && track.activated ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 4, track.exists && track.monitor ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+        track = tb.getTrack (4 + i);
+        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 2, track.exists && track.activated ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 5, track.exists && track.monitor ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+    }
+
+    var selectedTrack = tb.getSelectedTrack ();
+
+    this.surface.updateButtonEx (P32DJ_PFL, 1, selectedTrack != null && selectedTrack.solo ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+    this.surface.updateButtonEx (P32DJ_PFL, 2, selectedTrack != null && selectedTrack.mute ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+
+    var transport = this.model.getTransport ();
+    this.surface.updateButtonEx (P32DJ_REC, 0, transport.isRecording ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+    this.surface.updateButtonEx (P32DJ_SLIP, 0, transport.isLauncherOverdub ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+};
+
 MixView.prototype.onLoad = function (event, isDeckA)
 {
     if (!event.isDown ())
@@ -222,34 +246,12 @@ MixView.prototype.onPlayA = function (event)
     this.model.getTransport ().setLauncherOverdub (true);
 };
 
-MixView.prototype.updateButtons = function ()
-{
-    var tb = this.model.getCurrentTrackBank ();
-    var track = null;
-    for (var i = 0; i < 4; i++)
-    {
-        track = tb.getTrack (i);
-        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 1, track.exists && track.activated ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 4, track.exists && track.monitor ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-        track = tb.getTrack (4 + i);
-        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 2, track.exists && track.activated ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 5, track.exists && track.monitor ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-    }
-
-    var selectedTrack = tb.getSelectedTrack ();
-
-    this.surface.updateButtonEx (P32DJ_PFL, 1, selectedTrack != null && selectedTrack.solo ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-    this.surface.updateButtonEx (P32DJ_PFL, 2, selectedTrack != null && selectedTrack.mute ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-
-    var transport = this.model.getTransport ();
-    this.surface.updateButtonEx (P32DJ_REC, 0, transport.isRecording ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-    this.surface.updateButtonEx (P32DJ_SLIP, 0, transport.isLauncherOverdub ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-};
-
 MixView.prototype.onGridNote = function (event, isDeckA, isShifted, note, velocity)
 {
     if (this.surface.isShiftPressed (false))
     {
+        if (velocity == 0)
+            return;
         var index = note - 36;
         this.switchView (index);
         return;

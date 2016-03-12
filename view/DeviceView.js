@@ -21,6 +21,30 @@ function DeviceView (model)
 }
 DeviceView.prototype = new MixView ();
 
+/*
+DeviceView.prototype.updateButtons = function ()
+{
+    var states = this.model.isEffectTrackBankActive () ? this.deviceEnabled : this.deviceEnabledFX;
+    for (var i = 0; i < 4; i++)
+    {
+        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 1, states[i] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 4, states[i] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+
+        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 2, states[4 + i] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 5, states[4 + i] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+    }
+
+    var tb = this.model.getCurrentTrackBank ();
+    var selectedTrack = tb.getSelectedTrack ();
+
+    this.surface.updateButtonEx (P32DJ_PFL, 1, selectedTrack != null && selectedTrack.solo ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+    this.surface.updateButtonEx (P32DJ_PFL, 2, selectedTrack != null && selectedTrack.mute ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+
+    var transport = this.model.getTransport ();
+    this.surface.updateButtonEx (P32DJ_REC, 0, transport.isRecording ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+    this.surface.updateButtonEx (P32DJ_SLIP, 0, transport.isLauncherOverdub ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
+};*/
+
 DeviceView.prototype.onBrowseButton = function (event)
 {
     if (!event.isDown ())
@@ -127,29 +151,6 @@ DeviceView.prototype.onEffectOn = function (event, isDeckA, isShifted, fxNumber)
     this.getDeviceBank ().getDevice (index).toggleEnabledState ();
 };
 
-DeviceView.prototype.updateButtons = function ()
-{
-    var states = this.model.isEffectTrackBankActive () ? this.deviceEnabled : this.deviceEnabledFX;
-    for (var i = 0; i < 4; i++)
-    {
-        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 1, states[i] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 4, states[i] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-
-        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 2, states[4 + i] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-        this.surface.updateButtonEx (P32DJ_FX1_ON + i, 5, states[4 + i] ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-    }
-
-    var tb = this.model.getCurrentTrackBank ();
-    var selectedTrack = tb.getSelectedTrack ();
-
-    this.surface.updateButtonEx (P32DJ_PFL, 1, selectedTrack != null && selectedTrack.solo ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-    this.surface.updateButtonEx (P32DJ_PFL, 2, selectedTrack != null && selectedTrack.mute ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-
-    var transport = this.model.getTransport ();
-    this.surface.updateButtonEx (P32DJ_REC, 0, transport.isRecording ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-    this.surface.updateButtonEx (P32DJ_SLIP, 0, transport.isLauncherOverdub ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
-};
-
 DeviceView.prototype.onMixerGridNote = function (event, isDeckA, isShifted, note, velocity)
 {
     if (velocity == 0)
@@ -225,7 +226,7 @@ DeviceView.prototype.drawMixerGrid = function ()
         return;
     }
 
-    MixView.prototype.drawGrid.call (this);
+    MixView.prototype.drawMixerGrid.call (this);
 };
 
 DeviceView.prototype.getDeviceBank = function ()
