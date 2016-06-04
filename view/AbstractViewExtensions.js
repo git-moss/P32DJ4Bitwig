@@ -176,9 +176,3 @@ AbstractView.prototype.onMode = function (event, isDeckA, mode)
     if (event.isDown ())
         this.updateNoteMapping ();
 };
-
-AbstractView.prototype.canSelectedTrackHoldNotes = function ()
-{
-    var t = this.model.getCurrentTrackBank ().getSelectedTrack ();
-    return t != null && t.canHoldNotes;
-};
