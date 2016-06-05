@@ -59,7 +59,7 @@ MixView.prototype.updateNoteMapping = function ()
     switch (this.surface.getMode ())
     {
         case P32DJ.MODE_LEFT_LOOP:
-            this.noteMap = this.canSelectedTrackHoldNotes () ? this.scales.getNoteMatrix () : this.scales.getEmptyMatrix ();
+            this.noteMap = this.model.canSelectedTrackHoldNotes () ? this.scales.getNoteMatrix () : this.scales.getEmptyMatrix ();
             break;
         
         default:
@@ -319,7 +319,7 @@ MixView.prototype.onMixerGridNote = function (event, isDeckA, isShifted, note, v
 
 MixView.prototype.onDrumGridNote = function (event, isDeckA, isShifted, note, velocity)
 {
-    if (!this.canSelectedTrackHoldNotes ())
+    if (!this.model.canSelectedTrackHoldNotes ())
         return;
 
     var index = note - 36;
@@ -428,7 +428,7 @@ MixView.prototype.onDrumGridNote = function (event, isDeckA, isShifted, note, ve
 
 MixView.prototype.onPlayGridNote = function (event, isDeckA, isShifted, note, velocity)
 {
-    if (!this.canSelectedTrackHoldNotes ())
+    if (!this.model.canSelectedTrackHoldNotes ())
         return;
 
     if (this.surface.isShiftPressed (true))
@@ -602,7 +602,7 @@ MixView.prototype.drawMixerGrid = function ()
 
 MixView.prototype.drawDrumGrid = function ()
 {
-    if (!this.canSelectedTrackHoldNotes ())
+    if (!this.model.canSelectedTrackHoldNotes ())
     {
         this.surface.pads.turnOff ();
         return;
@@ -701,7 +701,7 @@ MixView.prototype.drawPlayGrid = function ()
         return;
     }
     
-    var isKeyboardEnabled = this.canSelectedTrackHoldNotes ();
+    var isKeyboardEnabled = this.model.canSelectedTrackHoldNotes ();
     var isRecording = this.model.hasRecordingState ();
     for (var i = 36; i < 68; i++)
     {
