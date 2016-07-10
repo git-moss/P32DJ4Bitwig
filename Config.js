@@ -15,13 +15,15 @@ Config.maxParameterValue = 128;
 // Editable configurations
 // ------------------------------
 
-Config.SCALES_SCALE  = 0;
-Config.SCALES_BASE   = 1;
-Config.SCALES_IN_KEY = 2;
+Config.SCALES_SCALE        = 0;
+Config.SCALES_BASE         = 1;
+Config.SCALES_IN_KEY       = 2;
+Config.LIMIT_VOLUME_TO_0DB = 3;
 
 Config.scale       = 'Major';
 Config.scaleBase   = 'C';
 Config.scaleInKey  = true;
+Config.limitVolume = false;
 
 Config.init = function ()
 {
@@ -51,6 +53,17 @@ Config.init = function ()
         Config.scaleInKey = value == "In Key";
         Config.notifyListeners (Config.SCALES_IN_KEY);
     });
+
+
+    ///////////////////////////
+    // Workflow
+    
+    Config.limitVolumeSetting = prefs.getEnumSetting ("Limit Volume to 0dB", "Workflow", [ "On", "Off" ], "Off");
+    Config.limitVolumeSetting.addValueObserver (function (value)
+    {
+        Config.limitVolume = value == "On";
+        Config.notifyListeners (Config.LIMIT_VOLUME_TO_0DB);
+    });
 };
 
 Config.setScale = function (scale)
@@ -73,7 +86,7 @@ Config.setScaleInScale = function (inScale)
 // ------------------------------
 
 Config.listeners = [];
-for (var i = 0; i <= Config.SCALES_IN_KEY; i++)
+for (var i = 0; i <= Config.LIMIT_VOLUME_TO_0DB; i++)
     Config.listeners[i] = [];
 
 Config.addPropertyListener = function (property, listener)

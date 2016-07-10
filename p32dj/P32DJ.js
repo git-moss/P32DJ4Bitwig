@@ -98,6 +98,7 @@ function P32DJ (output, input)
     this.isShift = [ false, false ];
     this.isLeftSyncPressed = false;
     this.isLeftCuePressed  = false;
+    this.isLeftPlayPressed = false;
 
     this.pads = new Grid (output);
     this.display = new Display (output);
@@ -379,7 +380,10 @@ P32DJ.prototype.handleEvent = function (note, value, channel)
 
         case P32DJ_PLAY:
             if (isDeckA)
+            {
+                this.isLeftPlayPressed = event.isDown ();
                 view.onPlayA (event);
+            }
             else
                 view.onPlayB (event);
             break;

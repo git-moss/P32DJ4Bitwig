@@ -168,9 +168,21 @@ MixView.prototype.onVolumeKnob = function (isDeckA, isShifted, value)
     if (selectedTrack == null)
         return;
     if (isDeckA)
-        tb.setVolume (selectedTrack.index, value);
+        this.setConfiguredVolume (selectedTrack.index, value);
     else
         tb.setPan (selectedTrack.index, value);
+};
+
+MixView.prototype.setConfiguredVolume = function (trackIndex, value)
+{
+    var tb = this.model.getCurrentTrackBank ();
+    if (Config.limitVolume)
+    {
+        var v = value * 793 / (Config.maxParameterValue - 1);
+        tb.trackBank.getChannel (trackIndex).getVolume ().set (v, 1000);
+    }
+    else
+        tb.setVolume (trackIndex, value);
 };
 
 MixView.prototype.onFilterKnob = function (isDeckA, isShifted, value)
@@ -190,7 +202,7 @@ MixView.prototype.onEffectKnob = function (isDeckA, isShifted, fxNumber, value)
     if (isShifted)
         tb.setPan (index, value);
     else
-        tb.setVolume (index, value);
+        this.setConfiguredVolume (index, value);
 };
 
 MixView.prototype.onEffectOn = function (event, isDeckA, isShifted, fxNumber)
@@ -219,8 +231,9 @@ MixView.prototype.onSyncA = function (event)
 
 MixView.prototype.onPlayA = function (event)
 {
-    if (!event.isDown ())
+    if (!event.isUp ())
         return;
+
     var tb = this.model.getCurrentTrackBank ();
     var track = tb.getSelectedTrack ();
     if (track == null)
@@ -297,6 +310,11 @@ MixView.prototype.onMixerGridNote = function (event, isDeckA, isShifted, note, v
     }
 
     var trackIndex = col + (isDeckA ? 0 : 4);
+    
+    var track = tb.getTrack (trackIndex);
+    if (!track.exists)
+        return;
+    
     var row = Math.floor (index / cols);
     switch (row)
     {
@@ -311,7 +329,6 @@ MixView.prototype.onMixerGridNote = function (event, isDeckA, isShifted, note, v
             break;
         case 3:
             tb.select (trackIndex);
-            var track = tb.getTrack (trackIndex);
             displayNotification ("Track " + (track.position + 1) + ": " + track.name);
             break;
     }
@@ -593,7 +610,7 @@ MixView.prototype.drawMixerGrid = function ()
     for (var i = 0; i < 8; i++)
     {
         var track = tb.getTrack (i);
-        this.surface.pads.lightEx (i, 0, track.selected ? P32DJ_BUTTON_STATE_PINK : P32DJ_BUTTON_STATE_BLACK);
+        this.surface.pads.lightEx (i, 0, track.selected ? P32DJ_BUTTON_STATE_BLUE : (track.exists ? P32DJ_BUTTON_STATE_PINK : P32DJ_BUTTON_STATE_BLACK));
         this.surface.pads.lightEx (i, 1, track.solo ? P32DJ_BUTTON_STATE_BLUE : P32DJ_BUTTON_STATE_BLACK);
         this.surface.pads.lightEx (i, 2, track.mute ? P32DJ_BUTTON_STATE_PINK : P32DJ_BUTTON_STATE_BLACK);
         this.surface.pads.lightEx (i, 3, track.recarm ? P32DJ_BUTTON_STATE_RED : P32DJ_BUTTON_STATE_BLACK);

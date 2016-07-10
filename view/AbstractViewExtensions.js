@@ -29,16 +29,31 @@ AbstractView.prototype.updateDisplay = function ()
     var tempo = parts[0];
 
     // Left display
-    if (tempo.length > 2)
+    if (this.surface.isLeftPlayPressed)
     {
-        digit = parseInt (tempo.substr (0, 1));
-        display.setLeftDots (true, digit != 1);
-        display.setLeftDisplay (tempo.substr (1, 2));
+        // Display length for new clips
+        // 1 Beat, 2 Beats, 1 Bar, 2 Bars, 4 Bars, 8 Bars, 16 Bars, 32 Bars
+        var tb = this.model.getCurrentTrackBank ();
+        var clipLength = tb.getNewClipLength ();
+        display.setLeftDots (clipLength < 2, false);
+        var code = clipLength < 2 ? (clipLength + 1) : Math.pow (2, clipLength - 2);
+        code = code.toString ();
+        display.setLeftDisplay (code.length < 2 ? ' ' + code : code);
     }
     else
     {
-        display.setLeftDots (false, false);
-        display.setLeftDisplay (tempo);
+        // Display Tempo
+        if (tempo.length > 2)
+        {
+            digit = parseInt (tempo.substr (0, 1));
+            display.setLeftDots (true, digit != 1);
+            display.setLeftDisplay (tempo.substr (1, 2));
+        }
+        else
+        {
+            display.setLeftDots (false, false);
+            display.setLeftDisplay (tempo);
+        }
     }
 
     // Right display
@@ -128,7 +143,19 @@ AbstractView.prototype.onLoopEncKnob = function (isDeckA, isShifted, value)
 {
     if (isDeckA)
     {
-        this.model.getTransport ().changeTempo (value < 64, isShifted);
+        if (this.surface.isLeftPlayPressed)
+        {
+            // Change length of new clips
+            var tb = this.model.getCurrentTrackBank ();
+            var newLength = tb.getNewClipLength () + (value < 64 ? 1 : -1);
+            if (newLength >= 0 && newLength < 8)
+                tb.setNewClipLength (newLength);
+        }
+        else
+        {
+            // Change tempo
+            this.model.getTransport ().changeTempo (value < 64, isShifted);
+        }
         return;
     }
 
