@@ -196,18 +196,12 @@ DJView.prototype.onHeadphoneVolume = function (event, isUp)
 
 DJView.prototype.changeHeadphoneVolumeUp = function ()
 {
-    this.changeHeadphoneVolume (true);
+    // Headphonevolume is controlled by Hardware
 };
 
 DJView.prototype.changeHeadphoneVolumeDown = function ()
 {
-    this.changeHeadphoneVolume (false);
-};
-
-DJView.prototype.changeHeadphoneVolume = function (isUp)
-{
-    var tb = this.trackBank;
-    tb.changeVolume (DJView.TRACK_HEADPHONE, isUp ? 1 : 126, Config.fractionValue);
+    // Headphonevolume is controlled by Hardware
 };
 
 DJView.prototype.onFilterOn = function (event, isDeckA, isShifted)
