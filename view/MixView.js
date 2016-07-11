@@ -116,6 +116,47 @@ MixView.prototype.onEQ = function (isDeckA, isShifted, param, value)
     tb.setSend (selectedTrack.index, sendIndex, value);
 };
 
+MixView.prototype.onBrowseButton = function (event)
+{
+    if (!event.isDown ())
+        return;
+    
+    var browser = this.model.getBrowser ();
+
+    // Already browsing?
+    if (this.isBrowserActive ())
+    {
+        browser.stopBrowsing (!this.surface.isShiftPressed (false) && !this.surface.isShiftPressed (true));
+        return;
+    }
+
+    // Browse for presets
+    browser.browseForPresets ();
+};
+
+MixView.prototype.onBrowse = function (isShifted, value)
+{
+    if (this.isBrowserActive ())
+    {
+        var session = this.model.getBrowser ().getPresetSession ();            
+        if (value < 64)
+        {
+            session.selectNextResult ();
+            if (session.getSelectedResultIndex () == session.numResults - 1)
+                session.nextResultPage ();
+        }
+        else
+        {
+            session.selectPreviousResult ();
+            if (session.getSelectedResultIndex () == 0)
+                session.previousResultPage ();
+        }
+        return;
+    }
+    
+    AbstractView.prototype.onBrowse.call (this, isShifted, value);
+};
+
 MixView.prototype.onFilterOn = function (event, isDeckA, isShifted)
 {
     if (!event.isDown () || isShifted)
@@ -187,12 +228,36 @@ MixView.prototype.setConfiguredVolume = function (trackIndex, value)
 
 MixView.prototype.onFilterKnob = function (isDeckA, isShifted, value)
 {
+    if (this.isBrowserActive ())
+    {
+        this.handleBrowseKnob (isDeckA, isShifted, value);
+        return;
+    }
+    
     var tb = this.model.getCurrentTrackBank ();
     var selectedTrack = tb.getSelectedTrack ();
     if (selectedTrack == null)
         return;
     var sendIndex = isDeckA ? 0 : 1;
     tb.changeSend (selectedTrack.index, sendIndex, value, isShifted ? Config.fractionMinValue : Config.fractionValue);
+};
+
+MixView.prototype.handleBrowseKnob = function (isDeckA, isShifted, value)
+{
+    var session = this.model.getBrowser ().getPresetSession ();            
+    filterColumn = isDeckA ? 5 : 3;
+    if (value < 64)
+    {
+        session.selectNextFilterItem (filterColumn);
+        if (session.getSelectedFilterItemIndex (filterColumn) == session.numFilterColumnEntries - 1)
+            session.nextFilterItemPage (filterColumn);
+    }
+    else
+    {
+        session.selectPreviousFilterItem (filterColumn);
+        if (session.getSelectedFilterItemIndex (filterColumn) == 0)
+            session.previousFilterItemPage (filterColumn);
+    }
 };
 
 MixView.prototype.onEffectKnob = function (isDeckA, isShifted, fxNumber, value)
@@ -216,6 +281,12 @@ MixView.prototype.onEffectOn = function (event, isDeckA, isShifted, fxNumber)
         tb.toggleMonitor (index);
     else
         tb.toggleIsActivated (index);
+};
+
+MixView.prototype.onCueA = function (event)
+{
+    if (event.isDown ())
+        this.model.getApplication ().duplicate ();
 };
 
 MixView.prototype.onSyncA = function (event)
@@ -788,4 +859,9 @@ MixView.prototype.clearPressedKeys = function ()
         this.pressedKeys[i] = 0;
         this.drumPressedKeys[i] = 0;
     }
+};
+
+MixView.prototype.isBrowserActive = function ()
+{
+    return this.model.getBrowser ().getPresetSession ().isActive;
 };
