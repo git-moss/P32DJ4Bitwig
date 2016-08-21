@@ -102,7 +102,8 @@ DJView.prototype.onGridNote = function (event, isDeckA, isShifted, note, velocit
     }
 
     slots.select (s);
-    slots.launch (s);
+    if (Config.selectClipOnLaunch)
+        slots.launch (s);
 };
 
 DJView.prototype.drawGrid = function ()
