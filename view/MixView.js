@@ -13,6 +13,7 @@ function MixView (model)
     
     AbstractView.call (this, model);
     
+    this.columns = 4;
     this.rows = model.numScenes;
     
     this.resolutions = [ 1, 2/3, 1/2, 1/3, 1/4, 1/6, 1/8, 1/12 ];
@@ -67,6 +68,8 @@ MixView.prototype.updateNoteMapping = function ()
             this.surface.setKeyTranslationTable (this.noteMap);
             break;
     }
+    
+    this.model.getCurrentTrackBank ().setIndication (this.surface.getMode () == P32DJ.MODE_RIGHT_SAMPLER);
 };
 
 MixView.prototype.updateButtons = function ()
@@ -354,6 +357,10 @@ MixView.prototype.onGridNote = function (event, isDeckA, isShifted, note, veloci
         case P32DJ.MODE_LEFT_HOTCUE:
             this.onPrgChangeGrid (event, isDeckA, isShifted, note, velocity);
             break;
+            
+        case P32DJ.MODE_RIGHT_SAMPLER:
+            this.onSessionGrid (event, isDeckA, isShifted, note, velocity);
+            break;
         
         default:
             this.onMixerGridNote (event, isDeckA, isShifted, note, velocity);
@@ -366,15 +373,14 @@ MixView.prototype.onMixerGridNote = function (event, isDeckA, isShifted, note, v
     if (velocity == 0)
         return;
 
-    var cols = 4;
     var index = note - 36;
-    var col = index % cols;
+    var col = index % this.columns;
 
     var tb = this.model.getCurrentTrackBank ();
 
     if (this.surface.isShiftPressed (true))
     {
-        var s = (this.rows - 1) - Math.floor (index / cols);
+        var s = (this.rows - 1) - Math.floor (index / this.columns);
         var pad = col + s * 4 + (isDeckA ? 0 : 16);
         tb.scrollToChannel (8 * pad);
         return;
@@ -386,7 +392,7 @@ MixView.prototype.onMixerGridNote = function (event, isDeckA, isShifted, note, v
     if (!track.exists)
         return;
     
-    var row = Math.floor (index / cols);
+    var row = Math.floor (index / this.columns);
     switch (row)
     {
         case 0:
@@ -621,6 +627,53 @@ MixView.prototype.onPrgChangeGrid = function (event, isDeckA, isShifted, note, v
     this.surface.sendMidiEvent (0xC0, this.programNumber, 0);
 };
 
+MixView.prototype.onSessionGrid = function (event, isDeckA, isShifted, note, velocity)
+{
+    if (velocity == 0)
+        return;
+
+    var index = note - 36;
+    var x = (isDeckA ? 0 : 4) + index % this.columns;
+    var s = (this.rows - 1) - Math.floor (index / this.columns);
+
+    var tb = this.model.getCurrentTrackBank ();
+
+    if (this.surface.isShiftPressed (true))
+    {
+        var index = note - 36;
+        var y = (this.rows - 1) - Math.floor (index / this.columns);
+        var tb = this.model.getCurrentTrackBank ();
+        
+        // Calculate page offsets
+        var trackPosition = Math.floor (tb.getTrack (0).position / tb.numTracks);
+        var scenePosition = Math.floor (tb.getScenePosition () / tb.numScenes);
+        var offsetX = Math.floor (trackPosition / 8) * 8;
+        var offsetY = Math.floor (scenePosition / this.rows) * this.rows;
+        
+        tb.scrollToChannel (offsetX * tb.numTracks + x * 8);
+        tb.scrollToScene (offsetY * tb.numScenes + y * this.rows);
+        return;
+    }
+
+    if (this.surface.isShiftPressed (false))
+    {
+        this.switchView (index);
+        return;
+    }
+
+    var slots = tb.getClipLauncherSlots (x);
+
+    if (this.surface.isLeftSyncPressed)
+    {
+        slots.stop ();
+        return;
+    }
+
+    slots.select (s);
+    if (Config.selectClipOnLaunch)
+        slots.launch (s);
+};
+
 MixView.prototype.setPressedKeys = function (note, pressed, velocity)
 {
     // Loop over all pads since the note can be present multiple time!
@@ -651,6 +704,10 @@ MixView.prototype.drawGrid = function ()
         
         case P32DJ.MODE_LEFT_HOTCUE:
             this.drawPrgChangeGrid ();
+            break;
+            
+        case P32DJ.MODE_RIGHT_SAMPLER:
+            this.drawSessionGrid ();
             break;
         
         default:
@@ -827,6 +884,74 @@ MixView.prototype.drawPrgChangeGrid = function ()
             this.surface.pads.lightEx (x, y, isSelected ? P32DJ_BUTTON_STATE_RED : (y % 2 == 0 ? P32DJ_BUTTON_STATE_BLUE : P32DJ_BUTTON_STATE_PINK), null, false);
         }
     }
+};
+
+MixView.prototype.drawSessionGrid = function ()
+{
+    var tb = this.model.getTrackBank ();
+
+    if (this.surface.isShiftPressed (true))
+    {
+        var maxScenePads = Math.ceil (this.model.getSceneBank ().getSceneCount () / tb.numScenes);
+        var maxTrackPads = Math.ceil (tb.getTrackCount () / tb.numTracks);
+        var trackPosition = Math.floor (tb.getTrack (0).position / tb.numTracks);
+        var scenePosition = Math.floor (tb.getScenePosition () / tb.numScenes);
+        var selX = trackPosition;
+        var selY = scenePosition;
+        var padsX = 8; //this.columns;
+        var padsY = this.rows;
+        var offsetX = Math.floor (selX / padsX) * padsX;
+        var offsetY = Math.floor (selY / padsY) * padsY;
+        var maxX = (this.flip ? maxScenePads : maxTrackPads) - offsetX; 
+        var maxY = (this.flip ? maxTrackPads : maxScenePads) - offsetY;
+        selX -= offsetX;
+        selY -= offsetY;
+        
+        var color = null;
+        for (var x = 0; x < 8; x++)
+        {
+            var rowColor = x < maxX ? AbstractSessionView.CLIP_COLOR_HAS_CONTENT : AbstractSessionView.CLIP_COLOR_NO_CONTENT; 
+            for (var y = 0; y < this.rows; y++)
+            {
+                color = y < maxY ? rowColor : AbstractSessionView.CLIP_COLOR_NO_CONTENT;
+                if (selX == x && selY == y)
+                    color = AbstractSessionView.CLIP_COLOR_IS_PLAYING;
+                this.surface.pads.lightEx (x, y, color.color);
+            }
+        }
+        
+        
+//        var scenePosition = Math.floor (tb.getScenePosition () / 4);
+//        // Scene selection mode
+//        for (var i = 0; i < 16; i++)
+//        {
+//            var y = i % 4;
+//            var x = Math.floor (i / 4);
+//            this.surface.pads.lightEx (x, y, i == scenePosition ? P32DJ_BUTTON_STATE_PINK : P32DJ_BUTTON_STATE_BLACK);
+//            this.surface.pads.lightEx (4 + x, y, (16 + i) == scenePosition ? P32DJ_BUTTON_STATE_PINK : P32DJ_BUTTON_STATE_BLACK);
+//        }
+        return;
+    }
+    
+    // Clips
+    for (var x = 0; x < 8; x++)
+    {
+        var t = tb.getTrack (x);
+        for (var y = 0; y < this.rows; y++)
+            this.drawPad (t.slots[y], x, y);
+    }
+};
+
+MixView.prototype.drawPad = function (slot, x, y)
+{
+    var color;
+    if (slot.isPlaying)
+        color = slot.isQueued ? AbstractSessionView.CLIP_COLOR_IS_PLAYING_QUEUED : AbstractSessionView.CLIP_COLOR_IS_PLAYING;
+    else if (slot.hasContent)
+        color = AbstractSessionView.CLIP_COLOR_HAS_CONTENT;
+    else
+        color = AbstractSessionView.CLIP_COLOR_NO_CONTENT;
+    this.surface.pads.lightEx (x, y, color.color);
 };
 
 MixView.prototype.getPadColor = function (index, primary, hasDrumPads, isSoloed, isRecording)
