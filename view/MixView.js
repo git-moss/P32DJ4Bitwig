@@ -288,19 +288,57 @@ MixView.prototype.onEffectOn = function (event, isDeckA, isShifted, fxNumber)
 
 MixView.prototype.onCueA = function (event)
 {
-    if (event.isDown ())
-        this.model.getApplication ().duplicate ();
+    if (!event.isDown ())
+        return;
+    switch (this.surface.getMode ())
+    {
+        // Drum mode
+        case P32DJ.MODE_LEFT_SLICER:
+            // Resolution and navigation -> onDrumGridNote
+            break;
+            
+        // Session mode
+        case P32DJ.MODE_RIGHT_SAMPLER:
+        // Mix mode
+        case P32DJ.MODE_LEFT_SAMPLER:
+        // Play mode
+        case P32DJ.MODE_LEFT_LOOP:
+        // Program change mode
+        case P32DJ.MODE_LEFT_HOTCUE:
+        default:
+            this.model.getApplication ().duplicate ();
+            break;
+    }
 };
 
 MixView.prototype.onSyncA = function (event)
 {
     if (!event.isDown ())
         return;
-    if (this.surface.getMode () != P32DJ.MODE_LEFT_SAMPLER)
-        return;
-    var device = this.model.getDevice ();
-    if (device.hasSelectedDevice ())
-        device.toggleWindowOpen ();
+    switch (this.surface.getMode ())
+    {
+        // Drum mode
+        case P32DJ.MODE_LEFT_SLICER:
+            // Select the drum pad -> onDrumGridNote
+            break;
+            
+        // Session mode
+        case P32DJ.MODE_RIGHT_SAMPLER:
+            // Stop a clip -> onSessionGrid
+            break;
+            
+        // Mix mode
+        case P32DJ.MODE_LEFT_SAMPLER:
+        // Play mode
+        case P32DJ.MODE_LEFT_LOOP:
+        // Program change mode
+        case P32DJ.MODE_LEFT_HOTCUE:
+        default:
+            var device = this.model.getDevice ();
+            if (device.hasSelectedDevice ())
+                device.toggleWindowOpen ();
+            break;
+    }
 };
 
 MixView.prototype.onPlayA = function (event)
