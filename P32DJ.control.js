@@ -13,7 +13,7 @@ load ("Controller.js");
 // This is the only global variable, do not use it.
 var controller = null;
 
-host.defineController ("Hercules", "P32DJ4Bitwig", "1.20", "D451C660-D668-11E5-A837-0800200C9A66", "Jürgen Moßgraber");
+host.defineController ("Hercules", "P32DJ4Bitwig", "1.21", "D451C660-D668-11E5-A837-0800200C9A66", "Jürgen Moßgraber");
 host.defineMidiPorts (1, 1);
 
 host.defineSysexIdentityReply ("F0 7E 7F 06 02 00 01 4E 02 00 17 00 ?? ?? ?? ?? F7");
