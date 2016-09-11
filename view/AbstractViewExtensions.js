@@ -185,8 +185,6 @@ AbstractView.prototype.switchView = function (index)
     }
 };
 
-AbstractView.prototype.drawSceneButtons = function () {};
-
 AbstractView.prototype.onMode = function (event, isDeckA, mode) 
 {
     if (event.isDown ())
