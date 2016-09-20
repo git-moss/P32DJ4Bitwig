@@ -31,8 +31,6 @@ function setP32Colors ()
     AbstractSessionView.USE_CLIP_COLOR                 = false;
 
     // TODO
-//    AbstractSequencerView.COLOR_SELECTED_RESOLUTION_OFF = P32DJ_BUTTON_STATE_BLACK;
-//    AbstractSequencerView.COLOR_SELECTED_RESOLUTION_ON  = P32DJ_BUTTON_STATE_BLUE;
 //    AbstractSequencerView.COLOR_STEP_HILITE_NO_CONTENT  = P32DJ_BUTTON_STATE_BLUE;
 //    AbstractSequencerView.COLOR_STEP_HILITE_CONTENT     = P32DJ_BUTTON_STATE_BLUE;
 //    AbstractSequencerView.COLOR_NO_CONTENT              = P32DJ_BUTTON_STATE_BLACK;
