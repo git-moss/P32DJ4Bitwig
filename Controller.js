@@ -12,10 +12,6 @@ function Controller ()
 {
     Config.init ();
 
-    var output = new MidiOutput ();
-
-    var input = new P32DJMidiInput ();
-
     this.scales = new Scales (36, // Start note
                               68, // End note
                               8,  // Number of columns
@@ -33,6 +29,8 @@ function Controller ()
                             8,     // The number of parameter of a device to monitor
                             16);   // The number of devices to monitor 
    
+    var input = new MidiInput ();
+    var output = new MidiOutput ();
     this.surface = new P32DJ (output, input);
 
     this.surface.addView (VIEW_DJ, new DJView (this.model));
