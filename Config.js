@@ -17,16 +17,11 @@ Config.maxParameterValue = 128;
 // Editable configurations
 // ------------------------------
 
-Config.SCALES_SCALE          = 0;
-Config.SCALES_BASE           = 1;
-Config.SCALES_IN_KEY         = 2;
-Config.LIMIT_VOLUME_TO_0DB   = 3;
-Config.BEHAVIOUR_ON_STOP     = 4;
-Config.SELECT_CLIP_ON_LAUNCH = 5;
+Config.LIMIT_VOLUME_TO_0DB = 20;
 
 Config.limitVolume = false;
 
-Config.initListeners (Config.SELECT_CLIP_ON_LAUNCH);
+Config.initListeners (Config.LIMIT_VOLUME_TO_0DB);
 
 
 Config.init = function ()
