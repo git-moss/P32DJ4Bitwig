@@ -35,6 +35,7 @@ function setP32Colors ()
 //    AbstractSequencerView.COLOR_STEP_HILITE_CONTENT     = P32DJ_BUTTON_STATE_BLUE;
 //    AbstractSequencerView.COLOR_NO_CONTENT              = P32DJ_BUTTON_STATE_BLACK;
 //    AbstractSequencerView.COLOR_CONTENT                 = P32DJ_BUTTON_STATE_RED;
+//    AbstractSequencerView.COLOR_CONTENT_CONT            = P32DJ_BUTTON_STATE_RED;
     
 //    DrumView.COLOR_RECORD         = P32DJ_BUTTON_STATE_RED;
 //    DrumView.COLOR_PLAY           = P32DJ_BUTTON_STATE_BLUE;
