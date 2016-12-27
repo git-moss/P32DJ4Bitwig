@@ -443,7 +443,7 @@ MixView.prototype.onMixerGridNote = function (event, isDeckA, isShifted, note, v
             tb.toggleSolo (trackIndex);
             break;
         case 3:
-            tb.select (trackIndex);
+            this.selectTrack (trackIndex);
             displayNotification ("Track " + (track.position + 1) + ": " + track.name);
             break;
     }

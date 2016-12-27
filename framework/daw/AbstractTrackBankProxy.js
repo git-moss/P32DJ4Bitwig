@@ -213,11 +213,25 @@ AbstractTrackBankProxy.prototype.select = function (index)
         t.selectInEditor ();
 };
 
+AbstractTrackBankProxy.prototype.duplicate = function (index)
+{
+    var t = this.trackBank.getChannel (index);
+    if (t != null)
+        t.duplicate ();
+};
+
+AbstractTrackBankProxy.prototype.makeVisible = function (index)
+{
+    var t = this.trackBank.getChannel (index);
+    if (t == null)
+        return;
+    t.makeVisibleInArranger ();
+    t.makeVisibleInMixer ();
+};
+
 AbstractTrackBankProxy.prototype.changeVolume = function (index, value, fractionValue)
 {
-    var t = this.getTrack (index);
-    t.volume = changeValue (value, t.volume, fractionValue, Config.maxParameterValue);
-    this.trackBank.getChannel (t.index).getVolume ().set (t.volume, Config.maxParameterValue);
+    this.trackBank.getChannel (index).getVolume ().inc (calcKnobSpeed (value, fractionValue), Config.maxParameterValue);
 };
 
 AbstractTrackBankProxy.prototype.setVolume = function (index, value)
@@ -244,9 +258,7 @@ AbstractTrackBankProxy.prototype.setVolumeIndication = function (index, indicate
 
 AbstractTrackBankProxy.prototype.changePan = function (index, value, fractionValue)
 {
-    var t = this.getTrack (index);
-    t.pan = changeValue (value, t.pan, fractionValue, Config.maxParameterValue);
-    this.trackBank.getChannel (t.index).getPan ().set (t.pan, Config.maxParameterValue);
+    this.trackBank.getChannel (index).getPan ().inc (calcKnobSpeed (value, fractionValue), Config.maxParameterValue);
 };
 
 AbstractTrackBankProxy.prototype.setPan = function (index, value)
