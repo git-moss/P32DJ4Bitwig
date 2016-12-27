@@ -187,6 +187,34 @@ AbstractView.prototype.switchView = function (index)
 
 AbstractView.prototype.onMode = function (event, isDeckA, mode) 
 {
-    if (event.isDown ())
-        this.updateNoteMapping ();
+    if (!event.isDown ())
+        return;
+    
+    this.updateNoteMapping ();
+    
+    if (this.surface.isActiveView (VIEW_DJ))
+        return;
+    
+    switch (this.surface.getMode ())
+    {
+        case P32DJ.MODE_LEFT_SLICER:
+            displayNotification ("Drum Sequencer");
+            break;
+        
+        case P32DJ.MODE_LEFT_LOOP:
+            displayNotification ("Play");
+            break;
+        
+        case P32DJ.MODE_LEFT_HOTCUE:
+            displayNotification ("Program Change");
+            break;
+            
+        case P32DJ.MODE_RIGHT_SAMPLER:
+            displayNotification ("Session");
+            break;
+        
+        default:
+            displayNotification ("Mix");
+            break;
+    }
 };

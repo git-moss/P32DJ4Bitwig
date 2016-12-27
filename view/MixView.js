@@ -353,6 +353,11 @@ MixView.prototype.onPlayA = function (event)
         displayNotification ("Please select an Instrument track first.");
         return;
     }
+    if (this.surface.isShiftPressed (true))
+    {
+        this.clip.quantize (1);
+        return;
+    }    
 
     var selectedSlot = tb.getSelectedSlot (track.index);
     var slotIndex = selectedSlot == null ? 0 : selectedSlot.index;
