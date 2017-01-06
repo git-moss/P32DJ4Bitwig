@@ -132,12 +132,6 @@ P32DJ.prototype.isShiftPressed = function (isDeckA)
     return this.isShift[isDeckA ? 0 : 1];
 };
 
-// Note: Weird to send to the DAW via P32DJ...
-P32DJ.prototype.sendMidiEvent = function (status, data1, data2)
-{
-    this.noteInput.sendRawMidiEvent (status, data1, data2);
-};
-
 // --------------------------------------
 // Handlers
 // --------------------------------------
