@@ -1,5 +1,5 @@
 // Written by Jürgen Moßgraber - mossgrabers.de
-// (c) 2016
+// (c) 2016-2017
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
 var P32DJ_BUTTON_STATE_INVALID = -1;
@@ -396,7 +396,7 @@ P32DJ.prototype.handleEvent = function (note, value, channel)
             break;
 
         case P32DJ_LOAD:
-            view.onLoad (event, isDeckA);
+            view.onLoad (event, isDeckA, isShifted);
             break;
 
         case P32DJ_PFL:

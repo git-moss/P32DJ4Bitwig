@@ -1,5 +1,5 @@
 // Written by Jürgen Moßgraber - mossgrabers.de
-// (c) 2016
+// (c) 2016-2017
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
 function DeviceView (model)
@@ -20,34 +20,6 @@ function DeviceView (model)
     this.deviceEnabledFX = initArray (false, 8);
 }
 DeviceView.prototype = new MixView ();
-
-DeviceView.prototype.onEQ = function (isDeckA, isShifted, param, value)
-{
-    var index = param + (isDeckA ? 2 : 5);
-    this.model.getDevice ().getMacro (index).getAmount ().set (value, Config.maxParameterValue);
-};
-
-DeviceView.prototype.onFilterOn = function (event, isDeckA, isShifted)
-{
-    if (!event.isDown ())
-        return;
-    var index = isDeckA ? 0 : 1;
-    this.model.getDevice ().getMacro (index).getAmount ().reset ();
-};
-
-DeviceView.prototype.onFilterKnob = function (isDeckA, isShifted, value)
-{
-    if (this.isBrowserActive ())
-    {
-        this.handleBrowseKnob (isDeckA, isShifted, value);
-        return;
-    }
-    
-    var index = isDeckA ? 0 : 1;
-    var param = this.model.getDevice ().getMacroParam (index);
-    var v = changeValue (value, param.value, isShifted ? Config.fractionMinValue : Config.fractionValue, Config.maxParameterValue);
-    this.model.getDevice ().getMacro (index).getAmount ().set (v, Config.maxParameterValue);
-};
 
 DeviceView.prototype.onEffectKnob = function (isDeckA, isShifted, fxNumber, value)
 {
@@ -127,7 +99,8 @@ DeviceView.prototype.onMixerGridNote = function (event, isDeckA, isShifted, note
         case 3:
             tb.select (trackIndex);
             var track = tb.getTrack (trackIndex);
-            displayNotification ("Track " + (track.position + 1) + ": " + track.name);
+            if (track.exists)
+                displayNotification ("Track " + (track.position + 1) + ": " + track.name);
             break;
     }
 };

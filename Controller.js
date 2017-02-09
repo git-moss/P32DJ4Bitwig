@@ -1,5 +1,5 @@
 // Written by Jürgen Moßgraber - mossgrabers.de
-// (c) 2016
+// (c) 2016-2017
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
 GlobalConfig.DISPLAY_TEXT_LENGTH = 30;
@@ -80,16 +80,14 @@ Controller.prototype.updateIndication = function ()
     var isDevice = this.surface.isActiveView (VIEW_DEVICE);
 
     var selectedTrack = tb.getSelectedTrack ();
+    var device = this.model.getDevice ();
     for (var i = 0; i < 8; i++)
     {
         var hasTrackSel = selectedTrack != null && selectedTrack.index == i;
         tb.setVolumeIndication (i, isMix);
         tb.setPanIndication (i, isMix);
         for (var j = 0; j < 8; j++)
-            tb.setSendIndication (i, j, isMix && hasTrackSel);
-
-        var cd = this.model.getDevice ();
-        cd.getParameter (i).setIndication (isDevice);
-        cd.getMacro (i).getAmount ().setIndication (isDevice);
+            tb.setSendIndication (i, j, hasTrackSel && isMix && isDevice);
+        device.getParameter (i).setIndication (isDevice);
     }
 };

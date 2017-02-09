@@ -1,5 +1,5 @@
 // Written by Jürgen Moßgraber - mossgrabers.de
-// (c) 2016
+// (c) 2016-2017
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
 MixView.NUM_DISPLAY_COLS = 32;
@@ -96,14 +96,26 @@ MixView.prototype.updateButtons = function ()
     this.surface.updateButtonEx (P32DJ_SLIP, 0, transport.isLauncherOverdub ? P32DJ_BUTTON_STATE_ON : P32DJ_BUTTON_STATE_OFF);
 };
 
-MixView.prototype.onLoad = function (event, isDeckA)
+MixView.prototype.onLoad = function (event, isDeckA, isShifted)
 {
     if (!event.isDown ())
         return;
+    
     if (isDeckA)
-        this.model.getApplication ().addInstrumentTrack ();
+    {
+        if (isShifted)
+            this.model.getApplication ().addAudioTrack ();
+        else
+            this.model.getApplication ().addInstrumentTrack ();
+    }
     else
-        this.model.getApplication ().addAudioTrack ();
+    {
+        var browser = this.model.getBrowser ();
+        if (isShifted)
+            browser.browseToInsertBeforeDevice ();
+        else
+            browser.browseToInsertAfterDevice ();
+    }
 };
 
 MixView.prototype.onEQ = function (isDeckA, isShifted, param, value)
@@ -141,18 +153,18 @@ MixView.prototype.onBrowse = function (isShifted, value)
 {
     if (this.isBrowserActive ())
     {
-        var session = this.model.getBrowser ().getPresetSession ();            
+        var browser = this.model.getBrowser ();            
         if (value < 64)
         {
-            session.selectNextResult ();
-            if (session.getSelectedResultIndex () == session.numResults - 1)
-                session.nextResultPage ();
+            browser.selectNextResult ();
+            if (browser.getSelectedResultIndex () == browser.numResults - 1)
+                browser.nextResultPage ();
         }
         else
         {
-            session.selectPreviousResult ();
-            if (session.getSelectedResultIndex () == 0)
-                session.previousResultPage ();
+            browser.selectPreviousResult ();
+            if (browser.getSelectedResultIndex () == 0)
+                browser.previousResultPage ();
         }
         return;
     }
@@ -247,19 +259,19 @@ MixView.prototype.onFilterKnob = function (isDeckA, isShifted, value)
 
 MixView.prototype.handleBrowseKnob = function (isDeckA, isShifted, value)
 {
-    var session = this.model.getBrowser ().getPresetSession ();            
-    filterColumn = isDeckA ? 5 : 3;
+    var browser = this.model.getBrowser ();            
+    filterColumn = isDeckA ? 3 : 4;
     if (value < 64)
     {
-        session.selectNextFilterItem (filterColumn);
-        if (session.getSelectedFilterItemIndex (filterColumn) == session.numFilterColumnEntries - 1)
-            session.nextFilterItemPage (filterColumn);
+        browser.selectNextFilterItem (filterColumn);
+        if (browser.getSelectedFilterItemIndex (filterColumn) == browser.numFilterColumnEntries - 1)
+            browser.nextFilterItemPage (filterColumn);
     }
     else
     {
-        session.selectPreviousFilterItem (filterColumn);
-        if (session.getSelectedFilterItemIndex (filterColumn) == 0)
-            session.previousFilterItemPage (filterColumn);
+        browser.selectPreviousFilterItem (filterColumn);
+        if (browser.getSelectedFilterItemIndex (filterColumn) == 0)
+            browser.previousFilterItemPage (filterColumn);
     }
 };
 
@@ -1031,5 +1043,5 @@ MixView.prototype.clearPressedKeys = function ()
 
 MixView.prototype.isBrowserActive = function ()
 {
-    return this.model.getBrowser ().getPresetSession ().isActive;
+    return this.model.getBrowser ().isActive ();
 };
