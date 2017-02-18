@@ -3,16 +3,16 @@
 // (c) 2014-2017
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
-function TrackBankProxy (numTracks, numScenes, numSends, hasFlatTrackList)
+function TrackBankProxy (cursorTrack, numTracks, numScenes, numSends, hasFlatTrackList)
 {
     AbstractTrackBankProxy.call (this, numTracks, numScenes, numSends);
+    
+    this.cursorTrack = cursorTrack;
 
     if (hasFlatTrackList)
     {
         this.trackBank = host.createMainTrackBank (numTracks, numSends, numScenes);
-        
-        // Add support for automatic bank movement which is automatically happening for the sibling trackbank
-        this.cursorTrack.addPositionObserver (doObject (this, TrackBankProxy.prototype.handleTrackSelection));
+        this.trackBank.followCursorTrack (cursorTrack);
     }
     else
         this.trackBank = this.cursorTrack.createSiblingsTrackBank (numTracks, numSends, numScenes, false, false);
@@ -79,11 +79,6 @@ TrackBankProxy.prototype.setSendIndication = function (index, sendIndex, indicat
 //--------------------------------------
 // Callback Handlers
 //--------------------------------------
-
-TrackBankProxy.prototype.handleTrackSelection = function (index)
-{
-   this.scrollToChannel (index);
-};
 
 TrackBankProxy.prototype.handleSendName = function (index1, index2, text)
 {

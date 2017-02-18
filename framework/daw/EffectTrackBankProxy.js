@@ -3,14 +3,16 @@
 // (c) 2014-2017
 // Licensed under LGPLv3 - http://www.gnu.org/licenses/lgpl-3.0.txt
 
-function EffectTrackBankProxy (numTracks, numScenes, audioInstrumentTrackBank)
+function EffectTrackBankProxy (cursorTrack, numTracks, numScenes, audioInstrumentTrackBank)
 {
     AbstractTrackBankProxy.call (this, numTracks, numScenes, 0);
+    
+    this.cursorTrack = cursorTrack;
     
     this.audioInstrumentTrackBank = audioInstrumentTrackBank;
 
     this.trackBank = host.createEffectTrackBank (numTracks, numScenes);
-    this.cursorTrack.addPositionObserver (doObject (this, EffectTrackBankProxy.prototype.handleTrackSelection));
+    this.trackBank.followCursorTrack (cursorTrack);
     
     this.init ();
 }
@@ -25,9 +27,4 @@ EffectTrackBankProxy.prototype.scrollToChannel = function (channel)
     channel = channel - this.audioInstrumentTrackBank.getTrackCount ();
     if (channel >= 0 && channel < this.getTrackCount ())
         this.trackBank.scrollToChannel (Math.floor (channel / this.numTracks) * this.numTracks);
-};
-
-EffectTrackBankProxy.prototype.handleTrackSelection = function (index)
-{
-   this.scrollToChannel (index);
 };
