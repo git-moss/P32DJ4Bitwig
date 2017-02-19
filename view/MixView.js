@@ -498,7 +498,7 @@ MixView.prototype.onDrumGridNote = function (event, isDeckA, isShifted, note, ve
                     this.scales.decDrumOctave ();
                     this.offsetY = MixView.DRUM_START_KEY + this.scales.getDrumOctave () * 16;
                     displayNotification (this.scales.getDrumRangeText ());
-                    this.model.getTrackBank ().primaryDevice.scrollDrumPadsPageUp ();
+                    this.model.getPrimaryDevice ().scrollDrumPadsPageUp ();
                     break;
                 case 5:
                     var newOffset = this.offsetX - this.clip.getStepSize ();
@@ -519,7 +519,7 @@ MixView.prototype.onDrumGridNote = function (event, isDeckA, isShifted, note, ve
                     this.scales.incDrumOctave ();
                     this.offsetY = MixView.DRUM_START_KEY + this.scales.getDrumOctave () * 16;
                     displayNotification (this.scales.getDrumRangeText ());
-                    this.model.getTrackBank ().primaryDevice.scrollDrumPadsPageDown ();
+                    this.model.getPrimaryDevice ().scrollDrumPadsPageDown ();
                     break;
             }
         }
@@ -845,7 +845,7 @@ MixView.prototype.drawDrumGrid = function ()
     }    
 
     // 4x4 Drum Pad Grid
-    var primary = this.model.getTrackBank ().primaryDevice;
+    var primary = this.model.getPrimaryDevice ();
     var hasDrumPads = primary.hasDrumPads ();
     var isSoloed = false;
     if (hasDrumPads)

@@ -14,7 +14,7 @@ function DJView (model)
 {
     AbstractSessionView.call (this, model, model.numScenes, model.numTracks);
 
-    this.trackBank = new TrackBankProxy (15, model.numScenes, 0, true);
+    this.trackBank = new TrackBankProxy (model.cursorTrack, 15, model.numScenes, 0, true);
 
     this.deckA = this.trackBank.trackBank.getTrack (DJView.TRACK_DECK_A_FX);
     this.deckB = this.trackBank.trackBank.getTrack (DJView.TRACK_DECK_B_FX);
