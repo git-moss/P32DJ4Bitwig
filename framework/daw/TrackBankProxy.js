@@ -19,9 +19,6 @@ function TrackBankProxy (cursorTrack, numTracks, numScenes, numSends, hasFlatTra
     
     this.init ();
 
-    // We only need 1 track of the children to move down in the group tree
-    this.childTrackBank = this.cursorTrack.createMainTrackBank 	(1, 0, 0, false);
-    
     // Sends values & texts
     for (var i = 0; i < numTracks; i++)
     {
@@ -39,8 +36,7 @@ TrackBankProxy.prototype = new AbstractTrackBankProxy ();
 
 TrackBankProxy.prototype.selectChildren = function ()
 {
-    var subChannel = this.childTrackBank.getChannel (0);
-    this.cursorTrack.selectChannel (subChannel);
+    this.cursorTrack.selectFirstChild ();
 };
 
 TrackBankProxy.prototype.selectParent = function ()
