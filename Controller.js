@@ -17,12 +17,10 @@ function Controller ()
                               8,  // Number of columns
                               4); // Number of rows
 
-    this.model = new Model (0, // The MIDI CC at which the user parameters start
-                            this.scales, // The scales object
+    this.model = new Model (this.scales, // The scales object
                             8,     // The number of track to monitor (per track bank)
                             4,     // The number of scenes to monitor (per scene bank)
                             8,     // The number of sends to monitor
-                            6,     // The number of filters columns in the browser to monitor
                             16,    // The number of entries in one filter column to monitor
                             16,    // The number of search results in the browser to monitor
                             true,  // Don't navigate groups, all tracks are flat (if true)
