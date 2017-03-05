@@ -390,7 +390,6 @@ TransportProxy.prototype.handleMetronomeVolume = function (volume)
 
 TransportProxy.prototype.handleMetronomeVolumeDisplay = function (volumeStr)
 {
-println(volumeStr);    
     this.metroVolumeStr = volumeStr;
 }; 
 
